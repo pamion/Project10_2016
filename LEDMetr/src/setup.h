@@ -1,0 +1,30 @@
+/*
+ * setup.h
+ *
+ * Created: 09.10.2016 21:57:56
+ *  Author: bosti
+ */ 
+
+
+#ifndef SETUP_H_
+#define SETUP_H_
+
+/*
+ * \brief Konfiguruje GPIO pro adresové sbìrnice multiplexeru a povolí je
+ * 
+ */
+void enable_Multiplexer(void);
+
+/*
+ * \brief Konfiguruje a inicializuje SPI0 pro AD pøevodník
+ * 
+ */
+void enable_AD_spi(void);
+
+/*
+ * \brief Pøepne linku pro výbìr kanálu multiplexeru na žádanou hodnotu
+ *
+ */
+void SwitchMultiplexerToChannel(uint8_t *Channel);
+
+#endif /* SETUP_H_ */
