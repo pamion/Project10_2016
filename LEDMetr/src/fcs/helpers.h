@@ -9,6 +9,10 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+extern volatile short int statusRS232;
+extern volatile char bufferRS232[100];
+extern volatile short int statusMachine;
+
 /*
  * \brief Zvedne èíslo kanálu o 1 nahoru
  * 
@@ -30,5 +34,11 @@ void setChannelDown (uint8_t *CurrentChannel);
  * \param Hodnota AD pøevodníku
  */
 void ADToBrightness(double *pBrightness, int AD_Data);
+
+/*
+ * \brief Obsluha sériové linky
+ *
+ */
+void serialTask(void);
 
 #endif /* HELPERS_H_ */

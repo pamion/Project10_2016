@@ -9,7 +9,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define LINE_START				'A'
+#define LINE_START				'D'
+#define CONFIG_PASS				"p9vnqat3"
 
 #define TEST_LED				AVR32_PIN_PA23
 #define FPBA					12000000
@@ -64,7 +65,19 @@
 #define MULTIPLEXER_A3_PIN		AVR32_PIN_PA17
 #define MULTIPLEXER_EN_PIN		AVR32_PIN_PA18
 
+/* Machine status definitions */
+#define MACHINE_MEASURE					0
+#define MACHINE_USER_CONFIGURATION		1
+#define MACHINE_FACTORY_CONFIGURATION	2
+
+/* RS232 status definitions */
+#define RS232_INITIAL			0		//Výchozí stav				- èeká se na první znak
+#define RS232_RECIEVING			1		//Pøijímání znakù			- èeká se na ukonèovací znak
+#define RS232_READY_TO_PROCESS	2		//Byl pøijat poslední znak	- èeká se na zpracování
+
+
 //******* MACROs *******//
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+#define CHECK_COMMAND(command, level) (strcmp(sub_str[level], command) == 0)
 
 #endif /* CONSTANTS_H_ */

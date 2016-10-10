@@ -9,6 +9,8 @@
 #ifndef SETUP_H_
 #define SETUP_H_
 
+extern volatile avr32_tc_t *tc;
+
 /*
  * \brief Konfiguruje GPIO pro adresové sbìrnice multiplexeru a povolí je
  * 
@@ -26,5 +28,11 @@ void enable_AD_spi(void);
  *
  */
 void SwitchMultiplexerToChannel(uint8_t *Channel);
+
+/*
+ * \brief Pøipraví celý MCU pro bìh
+ *
+ */
+void mainInit(void);
 
 #endif /* SETUP_H_ */

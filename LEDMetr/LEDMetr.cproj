@@ -429,6 +429,7 @@
     <Folder Include="src\ASF\common\utils\" />
     <Folder Include="src\ASF\common\utils\interrupt\" />
     <Folder Include="src\config\" />
+    <Folder Include="src\fcs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\ASF\avr32\drivers\flashc\flashc.c">
@@ -446,13 +447,22 @@
     <Compile Include="src\config\constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\interrupts.c">
+    <Compile Include="src\fcs\helpers.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\setup.c">
+    <Compile Include="src\fcs\helpers.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\setup.h">
+    <Compile Include="src\fcs\interrupts.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fcs\interrupts.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fcs\setup.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fcs\setup.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\common\services\delay\delay.h">
@@ -630,12 +640,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\ASF\common\boards\user_board\init.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\helpers.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\helpers.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\main.c">
