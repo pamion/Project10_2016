@@ -80,4 +80,41 @@
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 #define CHECK_COMMAND(command, level) (strcmp(sub_str[level], command) == 0)
 
+typedef const struct {
+	char hwMajor[2];
+	char hwMinor[2];
+	char swMajor[2];
+	char swMinor[2];
+	char hwSN[12];
+	uint16_t settlingTime;
+	char reserve1[2];
+	uint16_t samplingRate;
+	char reserve2[2];
+	uint8_t adClkPresc;
+	char reserve3[3];
+	float pdSens;
+	uint8_t calibOnOff;
+	char reserve4;
+	uint16_t calibData[9];
+} nvram_data_t1;
+
+typedef const struct {
+	uint16_t comPortBaudrate;
+	uint8_t comPortHandshake;
+	char reserve1;
+	uint8_t measNPLC;
+	char reserve2[3];
+	uint8_t measPowerLineFreq;
+	uint8_t measRounding;
+	uint8_t measScientific;
+	char reserved3;
+	char channelsToogleMask[2];
+	char reserve4[2];
+	char outputPrefix[8];
+	char outputSeparator[8];
+	char outputSuffix[8];
+	char outputLineEnding[8];
+	
+} nvram_data_t2;
+
 #endif /* CONSTANTS_H_ */

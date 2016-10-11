@@ -61,11 +61,52 @@ volatile char bufferRS232[100];
 //Status LuxmMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
 
+__attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256)))
+= {
+	.hwMajor			= {' ', '1'},
+	.hwMinor			= {'0', '4'},
+	.swMajor			= {' ', '0'},
+	.swMinor			= {'1', '1'},
+	.hwSN				= {'L', '0', '0', '1', '4', 'B', 'F', '1', '0', '0', '0', '0'},
+	.settlingTime		= {10},
+	.reserve1			= {0, 0},
+	.samplingRate		= {1000},
+	.reserve2			= {0, 0},
+	.adClkPresc			= {2},
+	.reserve3			= {0, 0, 0},
+	.pdSens				= {9.0},
+	.calibOnOff			= {0},
+	.reserve4			= {0},
+	.calibData			= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+};
+
+__attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ ((aligned (256)))
+= {
+	.comPortBaudrate	= {19200},
+	.comPortHandshake	= {0},
+	.reserve1			= {0},
+	.measNPLC			= {3},
+	.reserve2			= {0, 0, 0},
+	.measPowerLineFreq	= {50},
+	.measRounding		= {1},
+	.measScientific		= {0},
+	.reserved3			= {0},
+	.channelsToogleMask	= {0xFF, 0xFF},
+	.reserve4			= {0, 0},
+	.outputPrefix		= {'0x02', 0, 0, 0, 0, 0, 0, 0},
+	.outputSeparator	= {':', '\0', 0, 0, 0, 0, 0, 0},
+	.outputSuffix		= {'\n', 0, 0, 0, 0, 0, 0, 0},
+	.outputLineEnding	= {0x03, '\0', 0, 0, 0, 0, 0, 0}
+};
+
+
 int main (void)
 {
 	char ptemp[20];
 	
 	mainInit();
+	
+/*	flashc_memcpy((void *)US_HW_major,   &"b", sizeof(US_HW_major[0]),   true);*/
 	
 	while (1) {
 		//Process all data from terminal, if there is any
@@ -84,9 +125,8 @@ int main (void)
 					//sprintf(ptemp,"%lu",((uint32_t)Brightness));	//Hella 1.
 					//sprintf(ptemp,"%u",AD_Data_Values[j]);		//Hella 2.
 					usart_write_line(USER_RS232,ptemp);	
-					if (j<15)
-					{
-					usart_putchar(USER_RS232, 0x2C);				//Separator ','
+					if (j<15) {
+						usart_putchar(USER_RS232, 0x2C);				//Separator ','
 					}					
 				}
 				//usart_putchar(USER_RS232,0x03);					//ETX
@@ -95,7 +135,7 @@ int main (void)
 
 				print_sec = 0;
 				gpio_toggle_pin(TEST_LED);
-			}
-		}
+			} 
+		} 
 	}
 }

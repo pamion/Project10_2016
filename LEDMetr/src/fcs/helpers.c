@@ -7,8 +7,8 @@
 
 #include <asf.h>
 #include <string.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
 #include "constants.h"
 #include "helpers.h"
 
@@ -72,6 +72,24 @@ void serialTask(void) {
 			
 		} else if CHECK_COMMAND("info", 0) {
 			usart_write_line(USER_RS232, "Showing info\r\n");
+			
+			usart_putchar(USER_RS232, hiddenConfig.hwMajor[0]);
+			usart_putchar(USER_RS232, hiddenConfig.hwMajor[1]);
+			usart_putchar(USER_RS232, '.');
+			usart_putchar(USER_RS232, hiddenConfig.hwMinor[0]);
+			usart_putchar(USER_RS232, hiddenConfig.hwMinor[1]);
+			usart_putchar(USER_RS232, '\r');
+			usart_putchar(USER_RS232, '\n');
+			/*
+			usart_write_line(USER_RS232, &US_HW_major);
+			usart_write_line(USER_RS232, ".");
+			usart_write_line(USER_RS232, &US_HW_minor);
+			usart_write_line(USER_RS232, ".");
+			*/
+			char ptemp[100];
+			sprintf(ptemp, "%p %p %p %p", &hiddenConfig.hwMajor[0], &hiddenConfig.hwMajor[1], &hiddenConfig.hwMinor[0], &hiddenConfig.hwMinor[1]);
+			usart_write_line(USER_RS232, ptemp);
+			
 			recognized = TRUE;
 			
 		} else if CHECK_COMMAND("config", 0) {
