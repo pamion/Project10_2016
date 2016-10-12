@@ -55,6 +55,9 @@
 // From module: CPU Cycle Counter
 #include <cycle_counter.h>
 
+// From module: CPU Reset Cause
+#include <avr32_reset_cause.h>
+
 // From module: Common build items for user board support templates
 #include <user_board.h>
 

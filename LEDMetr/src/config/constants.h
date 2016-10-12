@@ -9,7 +9,6 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define LINE_START				'D'
 #define CONFIG_PASS				"p9vnqat3"
 
 #define TEST_LED				AVR32_PIN_PA23
@@ -77,8 +76,10 @@
 
 
 //******* MACROs *******//
-#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
-#define CHECK_COMMAND(command, level) (strcmp(sub_str[level], command) == 0)
+#define CHECK_BIT(var,pos)				((var) & (1<<(pos)))
+#define CHECK_COMMAND(command, level)	(strcmp(sub_str[level], command) == 0)
+#define DISP_ON_OFF(var)				if (var == 1) usart_write_line(USER_RS232, "ON"); else usart_write_line(USER_RS232, "OFF")
+#define DISP_ON_OFF_SPACE(var)			if (var == 1) usart_write_line(USER_RS232, "ON "); else usart_write_line(USER_RS232, "OFF")
 
 typedef const struct {
 	char hwMajor[2];
@@ -108,7 +109,7 @@ typedef const struct {
 	uint8_t measRounding;
 	uint8_t measScientific;
 	char reserved3;
-	char channelsToogleMask[2];
+	uint16_t channelsToogleMask;
 	char reserve4[2];
 	char outputPrefix[8];
 	char outputSeparator[8];
@@ -116,5 +117,35 @@ typedef const struct {
 	char outputLineEnding[8];
 	
 } nvram_data_t2;
+
+//Default values - hidden memory
+#define HW_MAJOR_DEFAULT		' ', '1'
+#define HW_MINOR_DEFAULT		'0', '4'
+#define SW_MAJOR_DEFAULT		' ', '0'
+#define SW_MINOR_DEFAULT		'1', '1'
+#define HW_SN_DEFAULT			'L', '0', '0', '1', '4', 'B', 'F', '1', '0', '0', '0', '0'
+#define SETTLING_TIME_DEFAULT	10
+#define SAMPLING_RATE_DEFAULT	1000
+#define AD_CLK_PRESC_DEFAULT	2
+#define PD_SENS_DEFAULT			9.0
+#define CALIB_ON_OFF_DEFAULT	0
+#define CALIB_DATA_DEFAULT		0, 0, 0, 0, 0, 0, 0, 0, 0
+
+//Default values - hidden memory
+#define COM_PORT_BAUD_DEFAULT	19200
+#define COM_PORT_HAND_DEFAULT	0
+#define MEAS_NPLC_DEFAULT		3
+#define MEAS_PL_FREQ_DEFAULT	50
+#define MEAS_ROUNDING_DEFAULT	1
+#define MEAS_SCIENTIFIC_DEFAULT 0
+#define CHANNELS_MASK_DEFAULT	0xFFFF
+#define OUTPUT_PREFIX_DEFAULT	0x02, 0, 0, 0, 0, 0, 0, 0
+#define OUTPUT_SEP_DEFAULT		':', '\0', 0, 0, 0, 0, 0, 0
+#define OUTPUT_SUF_DEFAULT		'\n', 0, 0, 0, 0, 0, 0, 0
+#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
+
+#define RESERVE_1B				0
+#define RESERVE_2B				0, 0
+#define RESERVE_3B				0, 0, 0
 
 #endif /* CONSTANTS_H_ */

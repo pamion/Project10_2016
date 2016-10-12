@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "constants.h"
 #include "helpers.h"
+#include "rs232TextOut.h"
 
 static char *sub_str[10];				//pole ukazatelù rozdìlených podle mezer
 static const char s[2] = " ";			//pomocná promìnná pro rozsekání
@@ -41,22 +42,15 @@ void ADToBrightness(double *pBrightness, int AD_Data)
 
 void serialTask(void) {
 	if (statusRS232 == RS232_READY_TO_PROCESS) {
-		/*usart_write_line(USER_RS232, &bufferRS232);
-		usart_putchar(USER_RS232, 0x0D);					//CR
-		usart_putchar(USER_RS232, 0x0A);					//LF
-		*/
-		
 		//rozøezání na podøetìzce podle mezery
 		sub_str[i] = strtok(bufferRS232, s);
-		while( sub_str[i] != NULL )
-		{
+		while( sub_str[i] != NULL ) {
 			sub_str[++i] = strtok(NULL, s);
 		}
 		
 		//Odstranìní øídících znakù, když se objeví (pro jistotu)
 		i = -1;
-		while( sub_str[i++] != NULL )
-		{
+		while( sub_str[i++] != NULL ) {
 			//Odstraníme znak nového øádku, pokud by se nám dostal na konec pøíkazu
 			sub_str[i][strcspn ( sub_str[i], "\n" )] = '\0';
 			//Odstraníme znak "carriage return", pokud by se nám dostal na konec pøíkazu
@@ -71,39 +65,24 @@ void serialTask(void) {
 			recognized = TRUE;
 			
 		} else if CHECK_COMMAND("info", 0) {
-			usart_write_line(USER_RS232, "Showing info\r\n");
-			
-			usart_putchar(USER_RS232, hiddenConfig.hwMajor[0]);
-			usart_putchar(USER_RS232, hiddenConfig.hwMajor[1]);
-			usart_putchar(USER_RS232, '.');
-			usart_putchar(USER_RS232, hiddenConfig.hwMinor[0]);
-			usart_putchar(USER_RS232, hiddenConfig.hwMinor[1]);
-			usart_putchar(USER_RS232, '\r');
-			usart_putchar(USER_RS232, '\n');
-			/*
-			usart_write_line(USER_RS232, &US_HW_major);
-			usart_write_line(USER_RS232, ".");
-			usart_write_line(USER_RS232, &US_HW_minor);
-			usart_write_line(USER_RS232, ".");
-			*/
-			char ptemp[100];
-			sprintf(ptemp, "%p %p %p %p", &hiddenConfig.hwMajor[0], &hiddenConfig.hwMajor[1], &hiddenConfig.hwMinor[0], &hiddenConfig.hwMinor[1]);
-			usart_write_line(USER_RS232, ptemp);
-			
+			showInfoText();			
 			recognized = TRUE;
 			
 		} else if CHECK_COMMAND("config", 0) {
-			usart_write_line(USER_RS232, "Config mode, not measuring...\r\n");
+			showConfigText();
 			statusMachine = MACHINE_USER_CONFIGURATION;
 			recognized = TRUE;
 		}
 		
 		// Standartní konfiguraèní pøíkazy
 		if (statusMachine >= MACHINE_USER_CONFIGURATION) {
-			if CHECK_COMMAND("exit", 0) {
-				usart_write_line(USER_RS232, "Closing configuration mode, measuring again...\r\n");
-				statusMachine = MACHINE_MEASURE;
-				recognized = TRUE;
+			
+			if (CHECK_COMMAND("exit", 0) || CHECK_COMMAND("end", 0)) {
+				usart_write_line(USER_RS232, "Saving changes...\r\n");
+				/* TODO: SAVE */
+				usart_write_line(USER_RS232, "Changes saved...\r\nRestarting unit...\r\n\r\n");
+				delay_ms(50); /* Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí... */
+				reset_do_soft_reset();
 			}
 		}
 		
@@ -118,7 +97,7 @@ void serialTask(void) {
 			usart_write_line(USER_RS232, "Write 'help' to see the list of all commands\r\n");
 		}
 		
-		//Uvolnìní bufferu pro další znak
+		//Uvolnìní bufferu pro další øìtìzec
 		statusRS232 = RS232_INITIAL;
 	}
 }

@@ -34,6 +34,7 @@
 #include "fcs/helpers.h"
 #include "fcs/setup.h"
 #include "fcs/interrupts.h"
+#include "fcs/rs232TextOut.h"
 
 //******* GLOBAL VARIABLES *******//
 volatile uint16_t AD_Data				= 0;
@@ -61,42 +62,40 @@ volatile char bufferRS232[100];
 //Status LuxmMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
 
-__attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256)))
-= {
-	.hwMajor			= {' ', '1'},
-	.hwMinor			= {'0', '4'},
-	.swMajor			= {' ', '0'},
-	.swMinor			= {'1', '1'},
-	.hwSN				= {'L', '0', '0', '1', '4', 'B', 'F', '1', '0', '0', '0', '0'},
-	.settlingTime		= {10},
-	.reserve1			= {0, 0},
-	.samplingRate		= {1000},
-	.reserve2			= {0, 0},
-	.adClkPresc			= {2},
-	.reserve3			= {0, 0, 0},
-	.pdSens				= {9.0},
-	.calibOnOff			= {0},
-	.reserve4			= {0},
-	.calibData			= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+__attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256))) = {
+	.hwMajor			= {HW_MAJOR_DEFAULT},
+	.hwMinor			= {HW_MINOR_DEFAULT},
+	.swMajor			= {SW_MAJOR_DEFAULT},
+	.swMinor			= {SW_MINOR_DEFAULT},
+	.hwSN				= {HW_SN_DEFAULT},
+	.settlingTime		=  SETTLING_TIME_DEFAULT,
+	.reserve1			= {RESERVE_2B},
+	.samplingRate		=  SAMPLING_RATE_DEFAULT,
+	.reserve2			= {RESERVE_2B},
+	.adClkPresc			=  AD_CLK_PRESC_DEFAULT,
+	.reserve3			= {RESERVE_3B},
+	.pdSens				=  PD_SENS_DEFAULT,
+	.calibOnOff			=  CALIB_ON_OFF_DEFAULT,
+	.reserve4			=  RESERVE_1B,
+	.calibData			= {CALIB_DATA_DEFAULT},
 };
 
-__attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ ((aligned (256)))
-= {
-	.comPortBaudrate	= {19200},
-	.comPortHandshake	= {0},
-	.reserve1			= {0},
-	.measNPLC			= {3},
-	.reserve2			= {0, 0, 0},
-	.measPowerLineFreq	= {50},
-	.measRounding		= {1},
-	.measScientific		= {0},
-	.reserved3			= {0},
-	.channelsToogleMask	= {0xFF, 0xFF},
-	.reserve4			= {0, 0},
-	.outputPrefix		= {'0x02', 0, 0, 0, 0, 0, 0, 0},
-	.outputSeparator	= {':', '\0', 0, 0, 0, 0, 0, 0},
-	.outputSuffix		= {'\n', 0, 0, 0, 0, 0, 0, 0},
-	.outputLineEnding	= {0x03, '\0', 0, 0, 0, 0, 0, 0}
+__attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ ((aligned (256))) = {
+	.comPortBaudrate	=  COM_PORT_BAUD_DEFAULT,
+	.comPortHandshake	=  COM_PORT_HAND_DEFAULT,
+	.reserve1			=  RESERVE_1B,
+	.measNPLC			=  MEAS_NPLC_DEFAULT,
+	.reserve2			= {RESERVE_3B},
+	.measPowerLineFreq	=  MEAS_PL_FREQ_DEFAULT,
+	.measRounding		=  MEAS_ROUNDING_DEFAULT,
+	.measScientific		=  MEAS_SCIENTIFIC_DEFAULT,
+	.reserved3			=  RESERVE_1B,
+	.channelsToogleMask	=  CHANNELS_MASK_DEFAULT,
+	.reserve4			= {RESERVE_2B},
+	.outputPrefix		= {OUTPUT_PREFIX_DEFAULT},
+	.outputSeparator	= {OUTPUT_SEP_DEFAULT},
+	.outputSuffix		= {OUTPUT_SUF_DEFAULT},
+	.outputLineEnding	= {OUTPUT_ENDING_DEFAULT}
 };
 
 
@@ -117,7 +116,6 @@ int main (void)
 			if ((print_sec) && (!(tc_tick%RS232WritePeriod))) {
 				int j;
 				// usart_putchar(USER_RS232,0x02);					//STX	
-				usart_putchar(USER_RS232,LINE_START);
 			
 				for (j=0; j<16; j++) {
 					ADToBrightness(&Brightness, AD_Data_Values[j]);

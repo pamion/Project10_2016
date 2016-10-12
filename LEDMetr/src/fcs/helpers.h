@@ -13,10 +13,7 @@ extern volatile short int statusRS232;
 extern volatile char bufferRS232[100];
 extern volatile short int statusMachine;
 extern nvram_data_t1 hiddenConfig;
-/*extern unsigned char US_HW_major[];
-extern unsigned char US_HW_minor[];
-extern unsigned char US_SW_major[];
-extern unsigned char US_SW_minor[];*/
+extern nvram_data_t2 publicConfig;
 
 /*
  * \brief Zvedne èíslo kanálu o 1 nahoru
