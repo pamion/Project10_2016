@@ -9,7 +9,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define CONFIG_PASS				"p9vnqat3"
+//#define CONFIG_PASS				"p9vnqat3"
+#define CONFIG_PASS				"pass" //TODO: Change it to default pass
 
 #define TEST_LED				AVR32_PIN_PA23
 #define FPBA					12000000
