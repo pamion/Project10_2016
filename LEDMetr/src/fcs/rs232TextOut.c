@@ -113,3 +113,49 @@ void showConfigText(void) {
 	usart_write_line(USER_RS232, "Use \"expconf\" command to export a configuration batch of current\r\n");
 	usart_write_line(USER_RS232, "luxmeter settings.\r\n\r\n");
 }
+
+void showComportHelp(void) {
+	usart_write_line(USER_RS232, "\r\nInformation:\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "This command can be used to configure RS-232 port baud rate and handshaking\r\n");
+	usart_write_line(USER_RS232, "type. When RTS/CTS handshaking is enabled, the luxmeter sends the results only\r\n");
+	usart_write_line(USER_RS232, "when permitted (acts as a slave device). However, the luxmeter still performs\r\n");
+	usart_write_line(USER_RS232, "measurements in the background and will send the most recent results immediately \r\n");
+	usart_write_line(USER_RS232, "after being permitted by the master.\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Usage:\r\n");
+	usart_write_line(USER_RS232, "       comport <arguments>\r\n\r\n");
+
+	usart_write_line(USER_RS232, "Arguments:\r\n");
+	usart_write_line(USER_RS232, "-b (value)    Sets port baud rate. Can be set between 1200 and 115200 baud,\r\n");
+	usart_write_line(USER_RS232, "              recommended values are 1200, 2400, 4800, 9600, 14400, 19200 (default\r\n");
+	usart_write_line(USER_RS232, "              setting), 28800, 38400, 57600 or 115200 baud.\r\n");
+	usart_write_line(USER_RS232, "-h (value)    Enables or disables hardware handshaking (RTS/CTS).\r\n");
+	usart_write_line(USER_RS232, "              Accepted values are on or off. Default setting is OFF.\r\n");
+	usart_write_line(USER_RS232, "-s            Suppresses all warnings when changing RS-232 port settings.\r\n");
+	usart_write_line(USER_RS232, "              Needed for automated configuration of the luxmeter\r\n");
+	usart_write_line(USER_RS232, "              via command batch.\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Examples:\r\n");
+	usart_write_line(USER_RS232, "       comport -b 9600\r\n");
+	usart_write_line(USER_RS232, "           Sets RS-232 baud rate to 9600 baud.\r\n");
+	usart_write_line(USER_RS232, "       comport -b 9600 -h on -s\r\n");
+	usart_write_line(USER_RS232, "           Sets RS-232 baud rate to 9600 baud, enables hardware handshaking\r\n");
+	usart_write_line(USER_RS232, "           and suppresses all warnings.\r\n\r\n");
+
+	
+	
+
+	
+	
+}
+
+void showComportWarning(void) {
+	usart_write_line(USER_RS232, "Warning! New RS-232 port settings will take effect after you enter \"exit\"\r\n");
+	usart_write_line(USER_RS232, "command. In order to communicate with the luxmeter after that, you will need\r\n");
+	usart_write_line(USER_RS232, "to change your terminal program settings accordingly.\r\n");
+	usart_write_line(USER_RS232, "Do you wish to continue? (Y/N)\r\n\r\n");
+}
+
+
+//art_write_line(USER_RS232, "--------- --------- --------- --------- --------- --------- --------- --------- ");

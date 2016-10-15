@@ -173,9 +173,9 @@ void mainInit(void) {
 	};
 
 	//******* RS232 Setting *******//
-	static const usart_options_t RS232_OPTIONS =
+	const usart_options_t RS232_OPTIONS =
 	{
-		.baudrate     = 19200, //9600,//19200,//57600,
+		.baudrate     = publicConfig.comPortBaudrate, //9600,//19200,//57600,
 		.charlength   = 8,
 		.paritytype   = USART_NO_PARITY,
 		.stopbits     = USART_1_STOPBIT,
@@ -185,8 +185,14 @@ void mainInit(void) {
 	gpio_enable_module(RS232_GPIO_MAP,
 	sizeof(RS232_GPIO_MAP)/sizeof(RS232_GPIO_MAP[0]) );
 
-	usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
-
+	//start right type on RS232
+	if (publicConfig.comPortHandshake == 0) {
+		usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
+	} 
+	else {
+		usart_init_hw_handshaking(USER_RS232, &RS232_OPTIONS, FPBA);
+	}
+	
 	INTC_register_interrupt(&usart_int_handler, USER_RS232_IRQ,
 	AVR32_INTC_INT0);
 

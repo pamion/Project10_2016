@@ -75,8 +75,10 @@ void usart_int_handler(void)
 	int c;
 
 	usart_read_char(USER_RS232, &c);
-
-	if(c == 0x0D || c == 0x0A) {					//if CR || LF
+	
+	if (statusRS232 == RS232_WAIT_2_CONFIRM) {
+		bufferRS232[0] = c;
+	} else if (c == 0x0D || c == 0x0A) {					//if CR || LF
 		if (statusRS232 == RS232_RECIEVING) {		//pokud nepøišel žádný ukonèovací znak
 			statusRS232				= RS232_READY_TO_PROCESS;
 			bufferRS232[pozRS232]	= '\0';

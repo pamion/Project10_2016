@@ -74,6 +74,9 @@
 #define RS232_INITIAL			0		//Výchozí stav				- èeká se na první znak
 #define RS232_RECIEVING			1		//Pøijímání znakù			- èeká se na ukonèovací znak
 #define RS232_READY_TO_PROCESS	2		//Byl pøijat poslední znak	- èeká se na zpracování
+#define RS232_WAIT_2_CONFIRM	3		//Je potøebý pouze jeden znak pro potvzení akce
+
+#define UNKNOWN					-1
 
 
 //******* MACROs *******//
@@ -82,7 +85,7 @@
 #define DISP_ON_OFF(var)				if (var == 1) usart_write_line(USER_RS232, "ON"); else usart_write_line(USER_RS232, "OFF")
 #define DISP_ON_OFF_SPACE(var)			if (var == 1) usart_write_line(USER_RS232, "ON "); else usart_write_line(USER_RS232, "OFF")
 
-typedef const struct {
+typedef struct {
 	char hwMajor[2];
 	char hwMinor[2];
 	char swMajor[2];
@@ -100,7 +103,7 @@ typedef const struct {
 	uint16_t calibData[9];
 } nvram_data_t1;
 
-typedef const struct {
+typedef struct {
 	uint16_t comPortBaudrate;
 	uint8_t comPortHandshake;
 	char reserve1;

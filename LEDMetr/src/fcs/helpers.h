@@ -10,6 +10,7 @@
 #define HELPERS_H_
 
 extern volatile short int statusRS232;
+extern volatile short int pozRS232;
 extern volatile char bufferRS232[100];
 extern volatile short int statusMachine;
 extern nvram_data_t1 hiddenConfig;

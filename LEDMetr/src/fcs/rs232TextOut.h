@@ -25,6 +25,18 @@ void showInfoText(void);
  */
 void showConfigText(void);
 
+/*
+ * /brief Funkce pro zobrazení nápovìdy pøíkazu COMPORT
+ *
+ */
+void showComportHelp(void);
+
+/*
+ * /brief Funkce pro zobrazení warování na zmìnu pøi použití pøíkazu COMPORT
+ *
+ */
+void showComportWarning(void);
+
 
 
 #endif /* RS232TEXTOUT_H_ */
