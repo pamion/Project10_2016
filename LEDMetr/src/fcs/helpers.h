@@ -9,12 +9,16 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
-extern volatile short int statusRS232;
-extern volatile short int pozRS232;
-extern volatile char bufferRS232[100];
-extern volatile short int statusMachine;
 extern nvram_data_t1 hiddenConfig;
 extern nvram_data_t2 publicConfig;
+
+extern char pref[9];
+extern char sepa[9];
+extern char suff[9];
+extern char lend[9];
+extern volatile int print_sec;
+extern volatile uint16_t AD_Data_Values[16];
+extern double Brightness;
 
 /*
  * \brief Zvedne èíslo kanálu o 1 nahoru
@@ -39,9 +43,9 @@ void setChannelDown (uint8_t *CurrentChannel);
 void ADToBrightness(double *pBrightness, int AD_Data);
 
 /*
- * \brief Obsluha sériové linky
- *
+ * \brief Zobrazí výstup mìøení na RS-232
+ * 
  */
-void serialTask(void);
+void measTask(void);
 
 #endif /* HELPERS_H_ */

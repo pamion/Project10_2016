@@ -20,6 +20,7 @@ extern volatile uint8_t MultiplexerChannel;
 extern volatile int ChannelSwitchingCounter;
 extern volatile short int statusRS232;
 extern volatile short int pozRS232;
+extern volatile short int afterFirstQuote;
 extern volatile char bufferRS232[100];
 
 /*

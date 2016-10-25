@@ -186,12 +186,14 @@ void mainInit(void) {
 	sizeof(RS232_GPIO_MAP)/sizeof(RS232_GPIO_MAP[0]) );
 
 	//start right type on RS232
+	usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
+	/*
 	if (publicConfig.comPortHandshake == 0) {
 		usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
 	} 
 	else {
 		usart_init_hw_handshaking(USER_RS232, &RS232_OPTIONS, FPBA);
-	}
+	}*/
 	
 	INTC_register_interrupt(&usart_int_handler, USER_RS232_IRQ,
 	AVR32_INTC_INT0);
@@ -201,7 +203,7 @@ void mainInit(void) {
 
 	// Enable all interrupts.
 	Enable_global_interrupt();
-
+	
 	gpio_set_gpio_pin(TEST_LED);
 
 	enable_Multiplexer();
@@ -219,4 +221,13 @@ void mainInit(void) {
 
 	// Start the timer/counter.
 	tc_start(tc, TC_CHANNEL);                    // Start 1ms timer/counter.
+	
+	strncpy(pref, publicConfig.outputPrefix,	 8);
+	strncpy(sepa, publicConfig.outputSeparator,	 8);
+	strncpy(suff, publicConfig.outputSuffix,	 8);
+	strncpy(lend, publicConfig.outputLineEnding, 8);
+	pref[8]	= '\0';
+	sepa[8]	= '\0';
+	suff[8]	= '\0';
+	lend[8]	= '\0';
 }

@@ -82,16 +82,29 @@ void usart_int_handler(void)
 		if (statusRS232 == RS232_RECIEVING) {		//pokud nepøišel žádný ukonèovací znak
 			statusRS232				= RS232_READY_TO_PROCESS;
 			bufferRS232[pozRS232]	= '\0';
-			pozRS232				= 0;			
+			pozRS232				= 0;
+			afterFirstQuote			= FALSE;			
 		}
 	} else if (c == 0x7F || c == 0x08) {	//if DELETE or BACKSPACE
 		pozRS232--;
-	} else if (c == 0x20 || c == 0x2D || (c >= 0x30 && c <= 0x39) ||	// if mezerník || pomlèka || èíslo
-			  (c >= 0x41 && c <= 0x5A)|| (c >= 0x61 && c <= 0x7A) ) {	// || velké písmeno || malé písmeno
+	} else if (c == 0x20) {					//if MEZERA
+		if (afterFirstQuote == FALSE) {
+			bufferRS232[pozRS232++]		= RS232_SEPARATOR;
+		} else {
+			bufferRS232[pozRS232++]		= 0x20;
+		}
+	} else if (c >= 0x20 && c <= 0x7E) {
+			/*(c == 0x20 || c == 0x22  || c == 0x2D ||					// if mezerník || uvozovky || pomlèka
+			  (c >= 0x30 && c <= 0x39) ||								// || èíslo
+			  (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) ) {	// || velké písmeno || malé písmeno
 																		//		=> WHITE LIST
+			*/
 		
 		if (statusRS232 != RS232_READY_TO_PROCESS) {					// pokud èeká pøíkaz na zpracování, poèkej si
 																		// TODO: zkontrolovat dávkové pøíkazy
+			if (c == 0x22) {		//Pokud uvozovky
+				afterFirstQuote				= 1 - afterFirstQuote;
+			}
 			bufferRS232[pozRS232++]		= c;
 			statusRS232					= RS232_RECIEVING;
 		}

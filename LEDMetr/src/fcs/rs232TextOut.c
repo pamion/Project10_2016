@@ -142,12 +142,6 @@ void showComportHelp(void) {
 	usart_write_line(USER_RS232, "       comport -b 9600 -h on -s\r\n");
 	usart_write_line(USER_RS232, "           Sets RS-232 baud rate to 9600 baud, enables hardware handshaking\r\n");
 	usart_write_line(USER_RS232, "           and suppresses all warnings.\r\n\r\n");
-
-	
-	
-
-	
-	
 }
 
 void showComportWarning(void) {
@@ -155,6 +149,118 @@ void showComportWarning(void) {
 	usart_write_line(USER_RS232, "command. In order to communicate with the luxmeter after that, you will need\r\n");
 	usart_write_line(USER_RS232, "to change your terminal program settings accordingly.\r\n");
 	usart_write_line(USER_RS232, "Do you wish to continue? (Y/N)\r\n\r\n");
+}
+
+void showMeasHelp(void) {
+	usart_write_line(USER_RS232, "Information:\r\n");
+	usart_write_line(USER_RS232, "  This command sets measurement time per channel and numeric format of the\r\n");
+	usart_write_line(USER_RS232, "  results. Measurement time greatly affects accuracy and stability of the\r\n");
+	usart_write_line(USER_RS232, "  results, especially when measuring illumination levels under 100 lx. Such\r\n");
+	usart_write_line(USER_RS232, "  measurements are sensitive to noise, especially the power line noise which\r\n");
+	usart_write_line(USER_RS232, "  is ubiquitous in industrial environments. To reduce its influence, measurement\r\n");
+	usart_write_line(USER_RS232, "  time is defined as Number of Power Line Cycles (=NPLC). Selecting measurement\r\n");
+	usart_write_line(USER_RS232, "  time that is an integer of power line period (cycle) greatly reduces noise\r\n");
+	usart_write_line(USER_RS232, "  induced from power lines. Note that different countries use different line\r\n");
+	usart_write_line(USER_RS232, "  frequencies (50 or 60 Hz, which translates to 20 ms and 16.6 ms period,\r\n");
+	usart_write_line(USER_RS232, "  respectively).\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Usage:\r\n");
+	usart_write_line(USER_RS232, "       meas <arguments>\r\n\r\n");
+
+	usart_write_line(USER_RS232, "Arguments:\r\n");
+	usart_write_line(USER_RS232, "-t  (value)   Sets measurement time the luxmeter spends on each active channel,\r\n");
+	usart_write_line(USER_RS232, "              in Number of Power Line Cycles (NPLC). Accepted range is from 1\r\n");
+	usart_write_line(USER_RS232, "              to 100 NPLC, only integer values are permissible. Default value is\r\n");
+	usart_write_line(USER_RS232, "              3 NPLC, which is regarded as a good tradeoff between measurement\r\n");
+	usart_write_line(USER_RS232, "              speed and results accuracy. Value of 1 NPLC is recommended only\r\n");
+	usart_write_line(USER_RS232, "              for measuring high levels of illumination (3000 lx or more).\r\n");
+	usart_write_line(USER_RS232, "              Values above 20 NPLC are rarely needed even in the harshest\r\n");
+	usart_write_line(USER_RS232, "              of industrial environments.\r\n");
+	usart_write_line(USER_RS232, "-lf (value)   Sets power line frequency (in Hz) in the country in which the\r\n");
+	usart_write_line(USER_RS232, "              luxmeter will be operated. Accepted values are 50 or 60.\r\n");
+	usart_write_line(USER_RS232, "              Default value is 50.\r\n");
+	usart_write_line(USER_RS232, "-rn on/off    Enables or disables rounding of the measured values to the\r\n");
+	usart_write_line(USER_RS232, "              nearest integer number. For example, 12.3 lx will be reported\r\n");
+	usart_write_line(USER_RS232, "              as 12 lx and 12.6 lx will be reported as 13 lx. Values lover than\r\n");
+	usart_write_line(USER_RS232, "              0.499 lx will be reported as 0 lx. Default setting is ON.\r\n");
+	usart_write_line(USER_RS232, "-sc on/off    Enables or disables scientific notation (exponential format) of\r\n");
+	usart_write_line(USER_RS232, "              result numbers. Default value is off. When enabled, 0.238 lx will\r\n");
+	usart_write_line(USER_RS232, "              be reported as 2.38E-1 and 146,000 lx will be reported as 1.46E5.\r\n");
+	usart_write_line(USER_RS232, "              Note that the scientific notation ignores the rounding\r\n");
+	usart_write_line(USER_RS232, "              option (-rn switch).\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Examples:\r\n");
+	usart_write_line(USER_RS232, "       meas -t 1\r\n");
+	usart_write_line(USER_RS232, "           Sets measurement time per channel to 1 NPLC. With the default 50 Hz\r\n");
+	usart_write_line(USER_RS232, "           line voltage, the luxmeter will spend 20 ms on each active channel.\r\n\r");	
+	usart_write_line(USER_RS232, "       meas -t 5 -lf 60\r\n");
+	usart_write_line(USER_RS232, "           Sets measurement time per channel to 5 NPLC and indicates that the\r\n");
+	usart_write_line(USER_RS232, "           luxmeter will be operated in a country that uses 60 Hz line\r\n");
+	usart_write_line(USER_RS232, "           frequency. Therefore, the luxmeter will spend 5 x 16.6 = 83.3 ms\r\n");
+	usart_write_line(USER_RS232, "           on each active channel.\r\n");	
+	usart_write_line(USER_RS232, "       meas -sc on\r\n");
+	usart_write_line(USER_RS232, "           Enables the scientific notation of the results.\r\n\r\n");
+}
+
+void showOutputHelp(void) {
+	usart_write_line(USER_RS232, "Information:\r\n");
+	usart_write_line(USER_RS232, "  This command can be used to configure result string that luxmeter sends\r\n");
+	usart_write_line(USER_RS232, "  via RS-232 port. The output string has format:\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "  <prefix>result1<separator>result2...<separator>result16<suffix><line-ending>\r\n\r\n");
+
+	usart_write_line(USER_RS232, "  The string always contains measured results for all 16 luxmeter channels,\r\n");
+	usart_write_line(USER_RS232, "  disabled channels read as zero. Use of period (\".\" character, dot) in any\r\n");
+	usart_write_line(USER_RS232, "  part of the output string is strongly discouraged, because it serves as \r\n");
+	usart_write_line(USER_RS232, "  decimal mark in the measured results. Prefix, separator and suffix are\r\n");
+	usart_write_line(USER_RS232, "  limited to 8 characters length.\r\n\r\n");
+
+	usart_write_line(USER_RS232, "Usage:\r\n");
+	usart_write_line(USER_RS232, "       output <arguments>\r\n\r\n");
+
+	usart_write_line(USER_RS232, "Arguments:\r\n");
+	usart_write_line(USER_RS232, "-p \"string\"        Defines the prefix as a text string. The string has to be\r\n");
+	usart_write_line(USER_RS232, "                   surrounded by quotation marks and can be empty. Default\r\n");
+	usart_write_line(USER_RS232, "                   setting is STX (Start of Text character, ASCII code 0x02).\r\n");
+	usart_write_line(USER_RS232, "                   Use the \"-pa\" argument for definition of such non-printable\r\n");
+	usart_write_line(USER_RS232, "                   characters.\r\n");
+	usart_write_line(USER_RS232, "-pa (ASCII codes)  Defines the prefix characters as a sequence of ASCII codes\r\n");
+	usart_write_line(USER_RS232, "                   in hexadecimal format. Only even number of numerals (0-9) and\r\n");
+	usart_write_line(USER_RS232, "                   characters A-F or a-f are accepted.\r\n");
+	usart_write_line(USER_RS232, "-s \"string\"        Defines the separator as a text string. The string has to\r\n");
+	usart_write_line(USER_RS232, "                   be surrounded by quotation marks and can be empty, though\r\n");
+	usart_write_line(USER_RS232, "                   that is not recommended for obvious reasons. Default\r\n");
+	usart_write_line(USER_RS232, "                   setting is \";\" (semicolon). For definition of non-printable\r\n");
+	usart_write_line(USER_RS232, "                   characters, use the \"-sa\" argument below.\r\n");
+	usart_write_line(USER_RS232, "-sa (ASCII codes)  Defines the separator characters as a sequence of ASCII\r\n");
+	usart_write_line(USER_RS232, "                   codes in hexadecimal format.\r\n");
+	usart_write_line(USER_RS232, "-u \"string\"        Defines the suffix as a text string. The string has to be\r\n");
+	usart_write_line(USER_RS232, "                   surrounded by quotation marks and can be empty. Default\r\n");
+	usart_write_line(USER_RS232, "                   setting is none (empty string). For definition of\r\n");
+	usart_write_line(USER_RS232, "                   non-printable characters, use the \"-ua\" argument below.\r\n");
+	usart_write_line(USER_RS232, "-ua (ASCII codes)  Defines the suffix characters as a sequence of ASCII\r\n");
+	usart_write_line(USER_RS232, "                   codes in hexadecimal format.\r\n");
+	usart_write_line(USER_RS232, "-l (value)         Selects from several common line ending types. Accepted\r\n");
+	usart_write_line(USER_RS232, "                   values are None, ETX (End of Text), EOT (End of\r\n");
+	usart_write_line(USER_RS232, "                   Transmission), CR (Carriage Return), LF (Line Feed), CRLF and\r\n");
+	usart_write_line(USER_RS232, "                   LFCR. Default value is ETX (End of Text, ASCII code 0x03).\r\n");
+	usart_write_line(USER_RS232, "-la (ASCII codes)  Allows definition of non-standard line endings (e.g. an\r\n");
+	usart_write_line(USER_RS232, "                   Escape Sequence) via ASCII codes in hexadecimal format.\r\n");
+	usart_write_line(USER_RS232, "                   Only even number of numerals (0-9) and characters A-F or a-f\r\n");
+	usart_write_line(USER_RS232, "                   are accepted.\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Examples:\r\n");
+	usart_write_line(USER_RS232, "       output -p \"\"\r\n");
+	usart_write_line(USER_RS232, "           Changes the prefix to None (empty string).\r\n");
+	usart_write_line(USER_RS232, "       output -s \" \"");
+	usart_write_line(USER_RS232, "           Changes the separator to space.\r\n");
+	usart_write_line(USER_RS232, "       output -sa 202c20\r\n");
+	usart_write_line(USER_RS232, "           Changes the separator to space-comma-space.\r\n");
+	usart_write_line(USER_RS232, "       output -p \"START\" -s \" \" -u \"END\" -l crlf\r\n");
+	usart_write_line(USER_RS232, "           The output string will read:\r\n");
+	usart_write_line(USER_RS232, "           START[result_1] [result_2] .... [result_16]END\r\n");
+	usart_write_line(USER_RS232, "           The line will end with CRLF (Carriage Return and Line Feed)\r\n");
+	usart_write_line(USER_RS232, "           characters (0x0d0a in hexadecimal ASCII).\r\n");	 
 }
 
 

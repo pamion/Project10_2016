@@ -480,6 +480,12 @@
     <Compile Include="src\fcs\rs232TextOut.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\fcs\serialTask.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fcs\serialTask.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\fcs\setup.c">
       <SubType>compile</SubType>
     </Compile>

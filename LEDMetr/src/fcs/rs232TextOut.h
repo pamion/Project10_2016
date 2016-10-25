@@ -37,6 +37,17 @@ void showComportHelp(void);
  */
 void showComportWarning(void);
 
+/*
+ * /brief Funkce pro zobrazení nápovìdy pøíkazu MEAS
+ *
+ */
+void showMeasHelp(void);
+
+/*
+ * /brief Funkce pro zobrazení nápovìdy pøíkazu OUTPUT
+ *
+ */
+void showOutputHelp(void);
 
 
 #endif /* RS232TEXTOUT_H_ */

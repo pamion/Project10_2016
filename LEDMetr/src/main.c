@@ -35,6 +35,7 @@
 #include "fcs/setup.h"
 #include "fcs/interrupts.h"
 #include "fcs/rs232TextOut.h"
+#include "fcs/serialTask.h"
 
 //******* GLOBAL VARIABLES *******//
 volatile uint16_t AD_Data				= 0;
@@ -57,10 +58,16 @@ volatile avr32_tc_t *tc					= ADRead_TC;
 //Promìnné pro naèítání øetìzce
 volatile short int statusRS232			= RS232_INITIAL;
 volatile short int pozRS232				= 0;
+volatile short int afterFirstQuote		= 0;
 volatile char bufferRS232[100];
 
 //Status LuxmMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
+
+char pref[9];
+char sepa[9];
+char suff[9];
+char lend[9];
 
 __attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256))) = {
 	.hwMajor			= {HW_MAJOR_DEFAULT},
@@ -99,10 +106,8 @@ __attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ 
 };
 
 
-int main (void)
-{
-	char ptemp[20];
-	
+int main (void) {
+
 	mainInit();
 	
 /*	flashc_memcpy((void *)US_HW_major,   &"b", sizeof(US_HW_major[0]),   true);*/
@@ -112,28 +117,8 @@ int main (void)
 		serialTask();
 
 		//Show measurements
-		if(statusMachine == MACHINE_MEASURE) {
-			if ((print_sec) && (!(tc_tick%RS232WritePeriod))) {
-				int j;
-				// usart_putchar(USER_RS232,0x02);					//STX	
-			
-				for (j=0; j<16; j++) {
-					ADToBrightness(&Brightness, AD_Data_Values[j]);
-					sprintf(ptemp, "%.0f", Brightness);				//Original
-					//sprintf(ptemp,"%lu",((uint32_t)Brightness));	//Hella 1.
-					//sprintf(ptemp,"%u",AD_Data_Values[j]);		//Hella 2.
-					usart_write_line(USER_RS232,ptemp);	
-					if (j<15) {
-						usart_putchar(USER_RS232, 0x2C);				//Separator ','
-					}					
-				}
-				//usart_putchar(USER_RS232,0x03);					//ETX
-				usart_putchar(USER_RS232, 0x0D);					//CR
-				usart_putchar(USER_RS232, 0x0A);					//LF					
-
-				print_sec = 0;
-				gpio_toggle_pin(TEST_LED);
-			} 
+		if ((statusMachine == MACHINE_MEASURE) && (print_sec) && (!(tc_tick%RS232WritePeriod))) {
+			measTask();
 		} 
 	}
 }

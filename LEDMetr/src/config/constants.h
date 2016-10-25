@@ -77,6 +77,7 @@
 #define RS232_WAIT_2_CONFIRM	3		//Je potøebý pouze jeden znak pro potvzení akce
 
 #define UNKNOWN					-1
+#define RS232_SEPARATOR			0x01	//zástupný znak pro úèely povolení mezery jako znaku uvnitø uvozovek
 
 
 //******* MACROs *******//
@@ -143,10 +144,11 @@ typedef struct {
 #define MEAS_ROUNDING_DEFAULT	1
 #define MEAS_SCIENTIFIC_DEFAULT 0
 #define CHANNELS_MASK_DEFAULT	0xFFFF
-#define OUTPUT_PREFIX_DEFAULT	0x02, 0, 0, 0, 0, 0, 0, 0
-#define OUTPUT_SEP_DEFAULT		':', '\0', 0, 0, 0, 0, 0, 0
-#define OUTPUT_SUF_DEFAULT		'\n', 0, 0, 0, 0, 0, 0, 0
-#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
+#define OUTPUT_PREFIX_DEFAULT	0x02, '\0', 0, 0, 0, 0, 0, 0
+#define OUTPUT_SEP_DEFAULT		';', '\0', 0, 0, 0, 0, 0, 0
+#define OUTPUT_SUF_DEFAULT		'\0', 0, 0, 0, 0, 0, 0, 0
+#define OUTPUT_ENDING_DEFAULT	'\r', '\n', '\0', 0, 0, 0, 0, 0
+//#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
 
 #define RESERVE_1B				0
 #define RESERVE_2B				0, 0
