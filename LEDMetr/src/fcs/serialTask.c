@@ -18,7 +18,8 @@
 
 static char *sub_str[10];				//pole ukazatelù rozdìlených podle mezer
 static char s[2];						//pomocná promìnná pro rozsekání
-static short int i, j;				//pomocná promìnná pro indexaci
+static char toASCII[3];
+static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
 static char ptemp[20];					//pomocná promìnná pro výpis
@@ -248,21 +249,7 @@ void serialTask(void) {
 				
 			} else if CHECK_COMMAND("output", 0) {
 				if (paramsCount != 1) {
-					/*
-					usart_write_line(USER_RS232, "Params: ");
 
-					sprintf(ptemp, "%d\r\n", paramsCount);
-					usart_write_line(USER_RS232, ptemp);
-
-					for (i = 0; i < paramsCount; i++) {
-						sprintf(ptemp, "Param %02d: ", i);
-						usart_write_line(USER_RS232, ptemp);
-						usart_write_line(USER_RS232, sub_str[i]);
-						usart_write_line(USER_RS232, "\r\n");
-					}
-					usart_write_line(USER_RS232, "\r\n");
-				*/
-					
 					i = 1;
 					while (i < paramsCount)	{
 
@@ -273,13 +260,30 @@ void serialTask(void) {
 								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
 									prefix[j-1] = sub_str[i+1][j];
 								prefix[j-1] = '\0';
-								usart_write_line(USER_RS232, "New prefix entered \r\n");
+								usart_write_line(USER_RS232, "New prefix entered\r\n");
+								i++;
 							} else {
 								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
 							}
 
 						} //end if "-p"
-						
+
+						else if CHECK_COMMAND("-pa", i) {
+
+							j = 0;
+							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+								toASCII[0] = sub_str[i+1][2*j];
+								toASCII[1] = sub_str[i+1][2*j+1];
+								toASCII[2] = '\n';
+								prefix[j] = (char)strtoul(toASCII, NULL, 16);
+								j++;
+							}
+							prefix[j] = '\0';
+							usart_write_line(USER_RS232, "New prefix entered\r\n");
+
+							i++;
+						} //end if "-pa"
+
 						else if CHECK_COMMAND("-s", i) {
 
 							if (sub_str[i+1][0] == '"') {
@@ -287,12 +291,29 @@ void serialTask(void) {
 								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
 									separator[j-1] = sub_str[i+1][j];
 								separator[j-1] = '\0';
-								usart_write_line(USER_RS232, "New separator entered \r\n");
+								usart_write_line(USER_RS232, "New separator entered\r\n");
+								i++;
 							} else {
 								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
 							}
 
 						} //end if "-s"
+						
+						else if CHECK_COMMAND("-sa", i) {
+
+							j = 0;
+							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+								toASCII[0] = sub_str[i+1][2*j];
+								toASCII[1] = sub_str[i+1][2*j+1];
+								toASCII[2] = '\n';
+								separator[j] = (char)strtoul(toASCII, NULL, 16);
+								j++;
+							}
+							separator[j] = '\0';
+							usart_write_line(USER_RS232, "New separator entered\r\n");
+
+							i++;
+						} //end if "-sa"
 					
 						else if CHECK_COMMAND("-u", i) {
 
@@ -301,12 +322,29 @@ void serialTask(void) {
 								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
 									suffix[j-1] = sub_str[i+1][j];
 								suffix[j-1] = '\0';
-								usart_write_line(USER_RS232, "New suffix entered \r\n");
+								usart_write_line(USER_RS232, "New suffix entered\r\n");
+								i++;
 							} else {
 								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
 							}
 
 						} //end if "-u"
+						
+						else if CHECK_COMMAND("-ua", i) {
+
+							j = 0;
+							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+								toASCII[0] = sub_str[i+1][2*j];
+								toASCII[1] = sub_str[i+1][2*j+1];
+								toASCII[2] = '\n';
+								suffix[j] = (char)strtoul(toASCII, NULL, 16);
+								j++;
+							}
+							suffix[j] = '\0';
+							usart_write_line(USER_RS232, "New suffix entered\r\n");
+
+							i++;
+						} //end if "-ua"
 
 						else if CHECK_COMMAND("-l", i) {
 
@@ -352,7 +390,21 @@ void serialTask(void) {
 
 						} //end if "-l"
 
-						//TODO: Dodìlat ASCII pøíkazy
+						else if CHECK_COMMAND("-la", i) {
+
+							j = 0;
+							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+								toASCII[0] = sub_str[i+1][2*j];
+								toASCII[1] = sub_str[i+1][2*j+1];
+								toASCII[2] = '\n';
+								lineEnd[j] = (char)strtoul(toASCII, NULL, 16);
+								j++;
+							}
+							lineEnd[j] = '\0';
+							usart_write_line(USER_RS232, "New line ending entered\r\n");
+
+							i++;
+						} //end if "-ua"
 
 						i++;
 					} // end-while through params

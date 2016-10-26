@@ -252,7 +252,7 @@ void showOutputHelp(void) {
 	usart_write_line(USER_RS232, "Examples:\r\n");
 	usart_write_line(USER_RS232, "       output -p \"\"\r\n");
 	usart_write_line(USER_RS232, "           Changes the prefix to None (empty string).\r\n");
-	usart_write_line(USER_RS232, "       output -s \" \"");
+	usart_write_line(USER_RS232, "       output -s \" \"\r\n");
 	usart_write_line(USER_RS232, "           Changes the separator to space.\r\n");
 	usart_write_line(USER_RS232, "       output -sa 202c20\r\n");
 	usart_write_line(USER_RS232, "           Changes the separator to space-comma-space.\r\n");

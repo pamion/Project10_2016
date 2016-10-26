@@ -116,9 +116,20 @@ int main (void) {
 		//Process all data from terminal, if there is any
 		serialTask();
 
-		//Show measurements
-		if ((statusMachine == MACHINE_MEASURE) && (print_sec) && (!(tc_tick%RS232WritePeriod))) {
-			measTask();
-		} 
+		if (print_sec) {
+			print_sec = 0;
+			
+			//Show measurements
+			if ((statusMachine == MACHINE_MEASURE) && ((tc_tick / RS232WritePeriod))) {
+				measTask();
+				
+				tc_tick = 0;
+				gpio_clr_gpio_pin(TEST_LED);
+			}
+			
+			if ( (tc_tick == 100) || (tc_tick == 101) ) {
+				gpio_set_gpio_pin(TEST_LED);
+			}
+		}
 	}
 }

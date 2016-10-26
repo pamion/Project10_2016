@@ -44,7 +44,7 @@ void measTask(void){
 				
 	for (j=0; j<16; j++) {
 		ADToBrightness(&Brightness, AD_Data_Values[j]);
-		sprintf(ptemp, "%.0f", Brightness);				//Print one value
+		sprintf(ptemp, "%1.0f", Brightness);			//Print one value
 		usart_write_line(USER_RS232, ptemp);
 		if (j<15)
 			usart_write_line(USER_RS232, sepa);			//Print separator
@@ -52,7 +52,4 @@ void measTask(void){
 			usart_write_line(USER_RS232, suff);			//Print suffix
 	}
 	usart_write_line(USER_RS232, lend);					//Print End of line
-				
-	print_sec = 0;
-	gpio_toggle_pin(TEST_LED);
 }
