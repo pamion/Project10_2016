@@ -36,14 +36,17 @@ void ADToBrightness(double *pBrightness, int AD_Data)
 	*pBrightness=BrightnessCorrection*pow(10,((double)5*Vlog));
 }
 
-void measTask(void){
+short int measTask(void){
 	int j;
 	char ptemp[20];
 
 	usart_write_line(USER_RS232, pref);					//Start of line
-				
+		
 	for (j=0; j<16; j++) {
-		ADToBrightness(&Brightness, AD_Data_Values[j]);
+		ADToBrightness(&Brightness, AD_Data_Values2Send[j]);
+		if ( !usart_tx_ready(USER_RS232) ) {
+			return 1;
+		}
 		sprintf(ptemp, "%1.0f", Brightness);			//Print one value
 		usart_write_line(USER_RS232, ptemp);
 		if (j<15)
@@ -52,4 +55,5 @@ void measTask(void){
 			usart_write_line(USER_RS232, suff);			//Print suffix
 	}
 	usart_write_line(USER_RS232, lend);					//Print End of line
+	return 0;
 }

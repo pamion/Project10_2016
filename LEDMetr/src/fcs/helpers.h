@@ -17,7 +17,7 @@ extern char sepa[9];
 extern char suff[9];
 extern char lend[9];
 extern volatile int print_sec;
-extern volatile uint16_t AD_Data_Values[16];
+extern volatile uint16_t AD_Data_Values2Send[16];
 extern double Brightness;
 
 /*
@@ -45,7 +45,9 @@ void ADToBrightness(double *pBrightness, int AD_Data);
 /*
  * \brief Zobrazí výstup mìøení na RS-232
  * 
+ * \return 0 when succes, return 1 when not succes
+ *
  */
-void measTask(void);
+short int measTask(void);
 
 #endif /* HELPERS_H_ */

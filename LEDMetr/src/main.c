@@ -40,6 +40,7 @@
 //******* GLOBAL VARIABLES *******//
 volatile uint16_t AD_Data				= 0;
 volatile uint16_t AD_Data_Values[16];			// promena pro ukladani hodnot vsech sestnacti kanalu
+volatile uint16_t AD_Data_Values2Send[16];		// promena pro odeslání hodnot vsech sestnacti kanalu
 volatile uint8_t MultiplexerChannel		= 0;
 uint8_t LastStringLenght				= 0;
 //int Error;
@@ -107,29 +108,42 @@ __attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ 
 
 
 int main (void) {
+	short int i;
+	short int sendData = 0;
 
 	mainInit();
-	
-/*	flashc_memcpy((void *)US_HW_major,   &"b", sizeof(US_HW_major[0]),   true);*/
 	
 	while (1) {
 		//Process all data from terminal, if there is any
 		serialTask();
+		
 
 		if (print_sec) {
+			//If 1ms interrupt has been raised
 			print_sec = 0;
 			
-			//Show measurements
-			if ((statusMachine == MACHINE_MEASURE) && ((tc_tick / RS232WritePeriod))) {
-				measTask();
-				
-				tc_tick = 0;
-				gpio_clr_gpio_pin(TEST_LED);
+			if ((statusMachine == MACHINE_MEASURE) && ((tc_tick / RS232WritePeriod)) ) {
+				//Copy measured data to send buffer
+				for (i = 0; i < 16; i++) {
+					AD_Data_Values2Send[i] = AD_Data_Values[i];
+				}
+				sendData = 1;
 			}
 			
 			if ( (tc_tick == 100) || (tc_tick == 101) ) {
 				gpio_set_gpio_pin(TEST_LED);
 			}
 		}
+		
+		if ( usart_tx_ready(USER_RS232) && (sendData == 1) ) {
+			//if serial line is ready and we have data to send
+			sendData = measTask();
+			if ( sendData == 0 ) {
+				gpio_clr_gpio_pin(TEST_LED);
+				tc_tick = 0;	
+			}
+			
+		}
+		
 	}
 }

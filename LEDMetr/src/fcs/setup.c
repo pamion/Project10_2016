@@ -169,7 +169,9 @@ void mainInit(void) {
 	static const gpio_map_t RS232_GPIO_MAP =
 	{
 		{USER_RS232_RX_PIN, USER_RS232_RX_FUNCTION},
-		{USER_RS232_TX_PIN, USER_RS232_TX_FUNCTION}
+		{USER_RS232_TX_PIN, USER_RS232_TX_FUNCTION},
+		{SER_RS232_RTS_PIN, SER_RS232_RTS_FUNCTION},
+		{SER_RS232_CTS_PIN, SER_RS232_CTS_FUNCTION}
 	};
 
 	//******* RS232 Setting *******//
@@ -186,14 +188,14 @@ void mainInit(void) {
 	sizeof(RS232_GPIO_MAP)/sizeof(RS232_GPIO_MAP[0]) );
 
 	//start right type on RS232
-	usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
-	/*
+	//usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
+
 	if (publicConfig.comPortHandshake == 0) {
 		usart_init_rs232(USER_RS232, &RS232_OPTIONS, FPBA);
 	} 
 	else {
 		usart_init_hw_handshaking(USER_RS232, &RS232_OPTIONS, FPBA);
-	}*/
+	}
 	
 	INTC_register_interrupt(&usart_int_handler, USER_RS232_IRQ,
 	AVR32_INTC_INT0);
