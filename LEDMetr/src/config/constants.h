@@ -16,6 +16,7 @@
 #define FPBA					12000000
 #define Vlog_CONVERSION			65536
 #define BrightnessCorrection 	0.01111111
+#define N_VALID_DEC_PLACES		3
 
 //******* ADRead timing (timer/counter) definitions  *******//
 #define ADRead_TC               (&AVR32_TC)

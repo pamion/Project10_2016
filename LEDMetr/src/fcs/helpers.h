@@ -43,6 +43,14 @@ void setChannelDown (uint8_t *CurrentChannel);
 void ADToBrightness(double *pBrightness, int AD_Data);
 
 /*
+ * \brief Upraví výstupní char tak, aby obsahoval pouze platná desetinná místa
+ *
+ * \param Pole znakù pro úpravu
+ * 
+ */
+void takeCareOfValidDecimalPaces(char *outputString);
+
+/*
  * \brief Zobrazí výstup mìøení na RS-232
  * 
  * \return 0 when succes, return 1 when not succes

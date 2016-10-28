@@ -36,7 +36,21 @@ void ADToBrightness(double *pBrightness, int AD_Data)
 	*pBrightness=BrightnessCorrection*pow(10,((double)5*Vlog));
 }
 
-short int measTask(void){
+void takeCareOfValidDecimalPaces(char *outputString) {
+		short int i=0;
+		short int N = 1;
+		
+		while ( (outputString[i] != '\0') && (outputString[i] != 'E') ) {
+			if ( (outputString[i] >= '0') && (outputString[i] <= '9') ) {
+				if ( N++ > N_VALID_DEC_PLACES ) {
+					outputString[i] = '0';
+				}
+			}
+			i++;
+		}	
+}
+
+short int measTask(void) {
 	int j;
 	char ptemp[20];
 
@@ -47,8 +61,24 @@ short int measTask(void){
 		if ( !usart_tx_ready(USER_RS232) ) {
 			return 1;
 		}
-		sprintf(ptemp, "%1.0f", Brightness);			//Print one value
-		usart_write_line(USER_RS232, ptemp);
+		
+		if (Brightness < 0.25){
+			Brightness = 0;
+		}
+		
+		if ( publicConfig.measScientific == 1 ) {
+			sprintf(ptemp, "%1.2E", Brightness);
+		} else if ( publicConfig.measRounding == 1 ) {
+			sprintf(ptemp, "%1.0f", Brightness);
+		} else{
+			sprintf(ptemp, "%1.2f", Brightness);
+		}
+		
+		//Take care of valid numbers
+		takeCareOfValidDecimalPaces( ptemp );
+
+				
+		usart_write_line(USER_RS232, ptemp);			//Print one value
 		if (j<15)
 			usart_write_line(USER_RS232, sepa);			//Print separator
 		else
