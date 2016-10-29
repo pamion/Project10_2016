@@ -14,7 +14,7 @@
 #include "rs232TextOut.h"
 
 void showInfoText(void) {
-	char ptemp[20];
+	char ptemp[50];
 	uint8_t i;
 	uint16_t aux;
 	
@@ -97,10 +97,8 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, "Example:\r\n");
 	outputStringExample( pref, sepa, suff, lend, publicConfig.measRounding, publicConfig.measScientific );
 	usart_write_line(USER_RS232, "\r\n\r\n");
-	
-	
-	
-	//TODO Dodìlat Output stings, measurement times...
+
+	measTimeInfo( publicConfig.measNPLC, publicConfig.measPowerLineFreq, hiddenConfig.settlingTime, publicConfig.channelsToogleMask, publicConfig.comPortBaudrate );
 }
 
 void showConfigText(void) {
@@ -393,7 +391,7 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 	char ptemp[20];
 	int j;
 	hexToStringRepresentation(pre);
-		
+	
 	for ( j=0; j<16; j++) {
 
 		if ( sc == 1 ) {
@@ -412,6 +410,28 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 			hexToStringRepresentation(su);
 	}
 	hexToStringRepresentation(le);
+}
+
+void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint16_t toogleMask, uint16_t baudRate ) {
+	char ptemp[60];
+	int cycle, allCycle, sendTime;
+	
+	cycle = ( 1000.0 * NPLC / PLFreq + settlingTime );
+	allCycle = __builtin_popcount(toogleMask) * cycle;
+	sendTime = ( 1000.0 * EST_CHARS_PER_MSG * 10 / baudRate );
+
+	usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
+	sprintf(ptemp, "%d milliseconds\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
+	usart_write_line(USER_RS232, ptemp);
+
+	sprintf(ptemp, "It takes about %d ms ", sendTime );
+	usart_write_line(USER_RS232, ptemp);
+	usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
+
+	if ( allCycle < sendTime ) {
+		usart_write_line(USER_RS232, "\r\n\r\nERR: It looks like your data cannot be send in time before new data will arrive.\r\n");
+		usart_write_line(USER_RS232, "Please slow down your measurement or use quicker serial line.\r\n\r\n\r\n\r\n");
+	}
 }
 
 

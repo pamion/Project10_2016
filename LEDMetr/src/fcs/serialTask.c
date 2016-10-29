@@ -26,6 +26,7 @@ static char ptemp[50];					//pomocná promìnná pro výpis
 
 /* Variables for saving */
 static uint16_t baud;
+static uint16_t channelMask;
 static uint8_t handShake;
 static short int save_RS232_changes;
 static uint8_t measTime;
@@ -85,6 +86,7 @@ void serialTask(void) {
 			PLfreq				= publicConfig.measPowerLineFreq;
 			rounding			= publicConfig.measRounding;
 			science				= publicConfig.measScientific;
+			channelMask			= publicConfig.channelsToogleMask;
 			strncpy(prefix,		publicConfig.outputPrefix,		8);
 			strncpy(separator,	publicConfig.outputSeparator,	8);
 			strncpy(suffix,		publicConfig.outputSuffix,		8);
@@ -239,7 +241,11 @@ void serialTask(void) {
 						i++;
 					} // end-while through params
 
-
+					usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
+					outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
+					usart_write_line(USER_RS232, "\r\n\r\n");
+					measTimeInfo( measTime, PLfreq, hiddenConfig.settlingTime, channelMask, baud );
+					
 					} else {
 					showMeasHelp();
 				}
@@ -409,6 +415,9 @@ void serialTask(void) {
 						i++;
 					} // end-while through params
 
+					usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
+					outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
+					usart_write_line(USER_RS232, "\r\n\r\n");
 
 					} else {
 					showOutputHelp();

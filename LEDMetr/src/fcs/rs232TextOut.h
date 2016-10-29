@@ -65,4 +65,10 @@ void  hexToStringRepresentation(char *string );
  */
 void outputStringExample( char *pre, char *se, char *su, char *le, short int rn, short int sc );
 
+/*
+ * /brief Vypsání odhadu èasu mìøení
+ *
+ */
+void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint16_t toogleMask, uint16_t baudRate );
+
 #endif /* RS232TEXTOUT_H_ */

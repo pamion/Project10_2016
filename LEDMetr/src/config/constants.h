@@ -20,6 +20,9 @@
 #define Vlog_CONVERSION			65536
 #define BrightnessCorrection 	0.01111111
 #define N_VALID_DEC_PLACES		3
+#define EST_CHARS_PER_MSG_LOW	60
+#define EST_CHARS_PER_MSG_HIGH	250
+#define EST_CHARS_PER_MSG		150
 
 //******* ADRead timing (timer/counter) definitions  *******//
 #define ADRead_TC               (&AVR32_TC)
