@@ -1,9 +1,10 @@
-/*
- * setup.h
+ /*
+ * \file setup.h
+ * \brief Funkce spojené s nábìhem MCU
  *
- * Created: 09.10.2016 21:57:56
- *  Author: bosti
- */ 
+ * \author bostik
+ *
+ */
 
 
 #ifndef SETUP_H_

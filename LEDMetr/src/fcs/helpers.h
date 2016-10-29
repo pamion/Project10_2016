@@ -1,9 +1,10 @@
-/*
- * helpers.h
+ /*
+ * \file helpers.h
+ * \brief Pomocné funkce
  *
- * Created: 09.10.2016 21:34:27
- *  Author: bostik
- */ 
+ * \author bostik
+ *
+ */
 
 
 #ifndef HELPERS_H_

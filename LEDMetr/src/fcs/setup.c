@@ -1,9 +1,10 @@
-/*
- * setup.c
+ /*
+ * \file setup.c
+ * \brief Funkce spojené s nábìhem MCU
  *
- * Created: 09.10.2016 21:57:33
- *  Author: bosti
- */ 
+ * \author bostik
+ *
+ */
 
 #include <asf.h>
 #include <string.h>
@@ -205,6 +206,27 @@ void mainInit(void) {
 
 	// Enable all interrupts.
 	Enable_global_interrupt();
+	
+	/* Enable AD converter */
+	
+	/** GPIO pin/adc-function map. */
+	const gpio_map_t ADC_GPIO_MAP = {
+		{ADC_ERROR_PIN, ADC_ERROR_FUNCTION},
+	};
+	
+	gpio_enable_module(ADC_GPIO_MAP, sizeof(ADC_GPIO_MAP) / sizeof(ADC_GPIO_MAP[0]));
+	
+	/* Configure the ADC peripheral module.
+	 * Lower the ADC clock to match the ADC characteristics (because we
+	 * configured the CPU clock to 12MHz, and the ADC clock characteristics are
+	 *  usually lower; cf. the ADC Characteristic section in the datasheet). */
+	AVR32_ADC.mr |= 0x1 << AVR32_ADC_MR_PRESCAL_OFFSET;
+	adc_configure(&AVR32_ADC);
+
+	/* Enable the ADC channels. */
+	adc_enable(&AVR32_ADC, ADC_ERROR_CHANNEL);
+
+	
 	
 	gpio_set_gpio_pin(TEST_LED);
 

@@ -1,9 +1,10 @@
-/*
- * helpers.c
+ /*
+ * \file helpers.c
+ * \brief Pomocné funkce
  *
- * Created: 09.10.2016 21:34:43
- *  Author: bostik
- */ 
+ * \author bostik
+ *
+ */
 
 #include <asf.h>
 #include <string.h>

@@ -3,7 +3,7 @@
  *
  * \brief LED Meter
  * Version: 0.11
- * Author: Pamion & Ondøej Boštík
+ * Author: Pamion & bostik
  *
  *
  */
@@ -43,7 +43,6 @@ volatile uint16_t AD_Data_Values[16];			// promena pro ukladani hodnot vsech ses
 volatile uint16_t AD_Data_Values2Send[16];		// promena pro odeslání hodnot vsech sestnacti kanalu
 volatile uint8_t MultiplexerChannel		= 0;
 uint8_t LastStringLenght				= 0;
-//int Error;
 double Brightness						= 0;
 volatile uint32_t ADReadsSummator		= 0;	// Slouzi k akumulaci opakovanych cteni hodnoty kanalu a spolu s NumberOfAveragedValues slozi k vypoctu aritmetickeho prumeru.
 volatile int AveragedReadsCounter		= 0;
@@ -62,7 +61,7 @@ volatile short int pozRS232				= 0;
 volatile short int afterFirstQuote		= 0;
 volatile char bufferRS232[100];
 
-//Status LuxmMetru
+//Status LuxMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
 
 char pref[9];
@@ -110,19 +109,19 @@ __attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ 
 int main (void) {
 	short int i;
 	short int sendData = 0;
+	float ErrVoltage  = -1;
 
 	mainInit();
 	
 	while (1) {
 		//Process all data from terminal, if there is any
 		serialTask();
-		
 
 		if (print_sec) {
 			//If 1ms interrupt has been raised
 			print_sec = 0;
 			
-			if ((statusMachine == MACHINE_MEASURE) && ((tc_tick / RS232WritePeriod)) ) {
+			if ( ( statusMachine == MACHINE_MEASURE ) && ( tc_tick / RS232WritePeriod ) ) {
 				//Copy measured data to send buffer
 				for (i = 0; i < 16; i++) {
 					AD_Data_Values2Send[i] = AD_Data_Values[i];
@@ -133,16 +132,32 @@ int main (void) {
 			if ( (tc_tick == 100) || (tc_tick == 101) ) {
 				gpio_set_gpio_pin(TEST_LED);
 			}
+			
+			// Check Analog voltage on control pin for errors during channel switching time
+			if ( ChannelSwitchedFlag == FALSE ) {
+				adc_start(&AVR32_ADC);
+				ErrVoltage = ADC_TO_VOLT( adc_get_value( &AVR32_ADC, ADC_ERROR_CHANNEL ) );
+			}
+			
 		}
 		
-		if ( usart_tx_ready(USER_RS232) && (sendData == 1) ) {
+		if ( usart_tx_ready(USER_RS232) && (sendData == 1 ) ) {
 			//if serial line is ready and we have data to send
-			sendData = measTask();
+			
+			if ( ( ErrVoltage > ADC_ERR_VOLT_LOW ) && ( ErrVoltage < ADC_ERR_VOLT_HIGH ) ) {
+				sendData = measTask();
+			} else {
+				usart_write_line(USER_RS232, pref);					//Start of line
+				usart_write_line(USER_RS232, "Err01 - check photodiode connections!");
+				usart_write_line(USER_RS232, suff);					//Print suffix
+				usart_write_line(USER_RS232, lend);					//Print End of line
+				sendData = 0;
+			}
+			
 			if ( sendData == 0 ) {
 				gpio_clr_gpio_pin(TEST_LED);
 				tc_tick = 0;	
 			}
-			
 		}
 		
 	}

@@ -30,6 +30,7 @@
     <AsfFrameworkConfig>
       <framework-data>
         <options>
+          <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
@@ -42,7 +43,7 @@
           <option id="common.services.basic.serial" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.basic.spi_master" value="Add" config="standard_spi" content-id="Atmel.ASF" />
           <option id="common.utils.interrupt" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="avr32.drivers.adc" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations>
           <configuration key="config.avr32.utils.trampoline" value="yes" default="yes" content-id="Atmel.ASF" />
@@ -115,6 +116,8 @@
           <file path="src/Config/conf_spi_master.h" framework="" version="3.31.0" source="common\services\spi\uc3_spi\module_config\conf_spi_master.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.31.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/avr32/drivers/cpu/avr32_reset_cause.h" framework="" version="3.31.0" source="avr32\drivers\cpu\avr32_reset_cause.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/avr32/drivers/adc/adc.c" framework="" version="3.31.0" source="avr32\drivers\adc\adc.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/avr32/drivers/adc/adc.h" framework="" version="3.31.0" source="avr32\drivers\adc\adc.h" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.31.0/common.applications.user_application.user_board.uc3a/html/index.html" />
         <offline-documentation help="" />
@@ -204,6 +207,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
@@ -249,6 +253,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
         <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD</avr32gcc.preprocessingassembler.general.AssemblerFlags>
@@ -278,6 +283,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
       </Avr32Gcc>
@@ -322,6 +328,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.level>Optimize (-O1)</avr32gcc.compiler.optimization.level>
@@ -368,6 +375,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
         <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
@@ -398,6 +406,7 @@
             <Value>../src/ASF/common/services/spi</Value>
             <Value>../src/ASF/common/services/delay</Value>
             <Value>../src/ASF/avr32/drivers/cpu</Value>
+            <Value>../src/ASF/avr32/drivers/adc</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
         <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
@@ -412,6 +421,7 @@
     <Folder Include="src\ASF\" />
     <Folder Include="src\ASF\avr32\" />
     <Folder Include="src\ASF\avr32\drivers\" />
+    <Folder Include="src\ASF\avr32\drivers\adc\" />
     <Folder Include="src\ASF\avr32\drivers\cpu\" />
     <Folder Include="src\ASF\avr32\drivers\cpu\cycle_counter\" />
     <Folder Include="src\ASF\avr32\drivers\flashc\" />
@@ -445,6 +455,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ASF\avr32\drivers\cpu\avr32_reset_cause.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\drivers\adc\adc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\drivers\adc\adc.h">
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\ASF\avr32\drivers\flashc\flashc.c">

@@ -1,9 +1,10 @@
-/*
- * interrupts.c
+ /*
+ * \file interrupts.c
+ * \brief Obsluha pøerušení
  *
- * Created: 09.10.2016 22:43:48
- *  Author: bosti
- */ 
+ * \author bostik
+ *
+ */
 
 #include <asf.h>
 #include <string.h>
@@ -28,8 +29,7 @@ void ADRead_irq(void)
 	// specify that an interrupt has been raised
 	print_sec = 1;
 	
-	if (ChannelSwitchedFlag)
-	{
+	if ( ChannelSwitchedFlag ) {
 		//******* AD value Read *******//
 		gpio_set_gpio_pin(AD_SPI_CNV);
 		cpu_delay_cy(2);						// measured by analyzer and this delay is in real appr 4us.
@@ -38,27 +38,24 @@ void ADRead_irq(void)
 		spi_read(AD_SPI, &AD_Data);
 		ADReadsSummator=ADReadsSummator+AD_Data;
 		AveragedReadsCounter++;
-		if(AveragedReadsCounter==NumberOfAveragedValues)
-		{
+		
+		//Calculate mean value
+		if( AveragedReadsCounter == NumberOfAveragedValues ) {
 			AD_Data_Values[MultiplexerChannel]=ADReadsSummator/NumberOfAveragedValues;
 			setChannelUp(&MultiplexerChannel);
 			SwitchMultiplexerToChannel(&MultiplexerChannel);
 			ADReadsSummator=0;
 			AveragedReadsCounter=0;
-			ChannelSwitchedFlag=0;
+			ChannelSwitchedFlag = FALSE;
 		}
 		
-	}else
-	{
-		if(ChannelSwitchingCounter!=MultiplexerSwitchTime)
-		{
+	} else {
+		if ( ChannelSwitchingCounter != MultiplexerSwitchTime ) {
 			ChannelSwitchingCounter++;
-		}else
-		{
-			ChannelSwitchedFlag=1;	
-			ChannelSwitchingCounter=0;
-		}		
-		
+		} else {
+			ChannelSwitchedFlag = TRUE;	
+			ChannelSwitchingCounter = 0;
+		}
 	}			
 	
 	// Clear the interrupt flag. This is a side effect of reading the TC SR.
@@ -78,7 +75,7 @@ void usart_int_handler(void)
 	
 	if (statusRS232 == RS232_WAIT_2_CONFIRM) {
 		bufferRS232[0] = c;
-	} else if (c == 0x0D || c == 0x0A) {					//if CR || LF
+	} else if (c == 0x0D || c == 0x0A) {			//if CR || LF
 		if (statusRS232 == RS232_RECIEVING) {		//pokud nepøišel žádný ukonèovací znak
 			statusRS232				= RS232_READY_TO_PROCESS;
 			bufferRS232[pozRS232]	= '\0';
@@ -94,12 +91,6 @@ void usart_int_handler(void)
 			bufferRS232[pozRS232++]		= 0x20;
 		}
 	} else if (c >= 0x20 && c <= 0x7E) {
-			/*(c == 0x20 || c == 0x22  || c == 0x2D ||					// if mezerník || uvozovky || pomlèka
-			  (c >= 0x30 && c <= 0x39) ||								// || èíslo
-			  (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) ) {	// || velké písmeno || malé písmeno
-																		//		=> WHITE LIST
-			*/
-		
 		if (statusRS232 != RS232_READY_TO_PROCESS) {					// pokud èeká pøíkaz na zpracování, poèkej si
 																		// TODO: zkontrolovat dávkové pøíkazy
 			if (c == 0x22) {		//Pokud uvozovky

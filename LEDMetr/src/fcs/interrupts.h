@@ -1,9 +1,11 @@
-/*
- * interrupts.h
+ /*
+ * \file interrupts.h
+ * \brief Obsluha pøerušení
  *
- * Created: 10.10.2016 10:47:28
- *  Author: bosti
- */ 
+ * \author bostik
+ *
+ */
+
 
 
 #ifndef INTERRUPTS_H_

@@ -1,16 +1,16 @@
 /*
- * constants.h
+ * \file constants.h
  *
- * Created: 09.10.2016 22:01:11
- *  Author: bosti
+ * \brief Define all constants for the whole projects
+ *
  */ 
 
 
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-//#define CONFIG_PASS				"p9vnqat3"
-#define CONFIG_PASS				"pass" //TODO: Change it to default pass
+//#define CONFIG_PASS			"p9vnqat3"
+#define CONFIG_PASS				"pass" ///< \todo Change it to default pass
 
 #define TEST_LED				AVR32_PIN_PA23
 #define FPBA					12000000
@@ -18,24 +18,15 @@
 #define BrightnessCorrection 	0.01111111
 #define N_VALID_DEC_PLACES		3
 
+#define RS232WritePeriod		1000				// RS-232 write period in ms
+#define NumberOfAveragedValues	30					// Count of readings captured by one channel during single period. MEasurement period fixed, t = 1ms.
+#define MultiplexerSwitchTime	10					// Time reserved for multiplexer channels switching. During this time AD is not read out.
+
 //******* ADRead timing (timer/counter) definitions  *******//
 #define ADRead_TC               (&AVR32_TC)
 #define ADRead_TC_IRQ_GROUP     AVR32_TC_IRQ_GROUP
 #define ADRead_TC_IRQ           AVR32_TC_IRQ0
 #define TC_CHANNEL				0
-
-
-//20140602 New - Request from Kozin to speed up writing to RS
-#define RS232WritePeriod		1000	// tato hodnota by mela byt minimalne o 1 vetsi jak 16*(NumberOfAveragedValues+MultiplexerSwitchTime)+1 tj. 16*(20+20)+1=641
-#define NumberOfAveragedValues	4		// Pocet opakovanych cteni jednoho cidla. Perioda ceteni je fixni = 1ms.
-#define MultiplexerSwitchTime	10		// Time reserved for multiplexer channels switching. During this time AD is not read out.
-//20140602 End
-
-//20140602 Original
-//#define RS232WritePeriod			641	// tato hodnota by mela byt minimalne o 1 vetsi jak 16*(NumberOfAveragedValues+MultiplexerSwitchTime)+1 tj. 16*(20+20)+1=641
-//#define NumberOfAveragedValues	20	// Pocet opakovanych cteni jednoho cidla. Perioda cteni je fixni = 1ms.
-//#define MultiplexerSwitchTime		20	// Time reserved for multiplexer channels switching. During this time AD is not read out.
-//20140602 Original End
 
 //******* USART DEFINITIONS *******//
 #define USER_RS232				(&AVR32_USART0)
@@ -63,6 +54,13 @@
 //#define AD_SPI_NPCS_FUNCTION	SPARE_SPI_NPCS_FUNCTION			//AVR32_SPI0_NPCS_0_0_FUNCTION
 #define AD_SPI_CNV				AVR32_PIN_PA05					// Trigger AD conversion signal - transition L->H
 
+#define ADC_ERROR_CHANNEL		1
+#define ADC_ERROR_PIN			AVR32_ADC_AD_1_PIN
+#define ADC_ERROR_FUNCTION		AVR32_ADC_AD_1_FUNCTION
+#define ADC_ERR_VOLT_HIGH		0.6
+#define ADC_ERR_VOLT_LOW		0.4
+#define ADC_TO_VOLT(value)		value * 3.3 / 1024
+
 //******* MULTIPLEXER DEFINITIONS *******//
 #define MULTIPLEXER_A0_PIN		AVR32_PIN_PA14
 #define MULTIPLEXER_A1_PIN		AVR32_PIN_PA15
@@ -76,13 +74,13 @@
 #define MACHINE_FACTORY_CONFIGURATION	2
 
 /* RS232 status definitions */
-#define RS232_INITIAL			0		//Výchozí stav				- èeká se na první znak
-#define RS232_RECIEVING			1		//Pøijímání znakù			- èeká se na ukonèovací znak
-#define RS232_READY_TO_PROCESS	2		//Byl pøijat poslední znak	- èeká se na zpracování
-#define RS232_WAIT_2_CONFIRM	3		//Je potøebý pouze jeden znak pro potvzení akce
+#define RS232_INITIAL			0		//Initial				- waiting for the first character
+#define RS232_RECIEVING			1		//Byte recieving		- waiting for the terminator char
+#define RS232_READY_TO_PROCESS	2		//Terminator recieved	- waiting for process
+#define RS232_WAIT_2_CONFIRM	3		//Waiting for confirmation character
 
 #define UNKNOWN					-1
-#define RS232_SEPARATOR			0x01	//zástupný znak pro úèely povolení mezery jako znaku uvnitø uvozovek
+#define RS232_SEPARATOR			0x01	//Placeholder for authorization spaces as a character inside quotation marks
 
 
 //******* MACROs *******//
@@ -154,6 +152,7 @@ typedef struct {
 #define OUTPUT_SUF_DEFAULT		'\0', 0, 0, 0, 0, 0, 0, 0
 #define OUTPUT_ENDING_DEFAULT	'\r', '\n', '\0', 0, 0, 0, 0, 0
 //#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
+///< /todo Change to default Line ending character
 
 #define RESERVE_1B				0
 #define RESERVE_2B				0, 0
