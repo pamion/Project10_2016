@@ -18,9 +18,6 @@
 #define BrightnessCorrection 	0.01111111
 #define N_VALID_DEC_PLACES		3
 
-#define NumberOfAveragedValues	60					// Count of readings captured by one channel during single period. MEasurement period fixed, t = 1ms.
-#define MultiplexerSwitchTime	10					// Time reserved for multiplexer channels switching. During this time AD is not read out.
-
 //******* ADRead timing (timer/counter) definitions  *******//
 #define ADRead_TC               (&AVR32_TC)
 #define ADRead_TC_IRQ_GROUP     AVR32_TC_IRQ_GROUP

@@ -82,7 +82,23 @@ void showInfoText(void) {
 		aux = aux >> 1;
 	}
 	usart_write_line(USER_RS232, "|\r\n");
-	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n");
+	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Output string settings: Prefix=\"");
+	hexToStringRepresentation(pref);
+	usart_write_line(USER_RS232, "\", separator is \"");
+	hexToStringRepresentation(sepa);
+	usart_write_line(USER_RS232, "\",\r\n");
+	usart_write_line(USER_RS232, "  suffix is \"");
+	hexToStringRepresentation(suff);
+	usart_write_line(USER_RS232, "\" and line ending is \"");
+	hexToStringRepresentation(lend);
+	usart_write_line(USER_RS232, "\".\r\n");
+	usart_write_line(USER_RS232, "Example:\r\n");
+	outputStringExample( pref, sepa, suff, lend, publicConfig.measRounding, publicConfig.measScientific );
+	usart_write_line(USER_RS232, "\r\n\r\n");
+	
+	
 	
 	//TODO Dodìlat Output stings, measurement times...
 }
@@ -261,6 +277,141 @@ void showOutputHelp(void) {
 	usart_write_line(USER_RS232, "           START[result_1] [result_2] .... [result_16]END\r\n");
 	usart_write_line(USER_RS232, "           The line will end with CRLF (Carriage Return and Line Feed)\r\n");
 	usart_write_line(USER_RS232, "           characters (0x0d0a in hexadecimal ASCII).\r\n");	 
+}
+
+void  hexToStringRepresentation(char *input ) {
+	int i = 0;
+	
+	while ( input[i] != '\0' ) {
+		
+		switch ( input[i] ) {
+			case 0x01 :
+				usart_write_line(USER_RS232, "<SOH>");
+				break;
+			case 0x02 :
+				usart_write_line(USER_RS232, "<STX>");
+				break;
+			case 0x03 :
+				usart_write_line(USER_RS232, "<ETX>");
+				break;
+			case 0x04 :
+				usart_write_line(USER_RS232, "<EOT>");
+				break;
+			case 0x05 :
+				usart_write_line(USER_RS232, "<ENQ>");
+				break;
+			case 0x06 :
+				usart_write_line(USER_RS232, "<ACK>");
+				break;
+			case 0x07 :
+				usart_write_line(USER_RS232, "<BEL>");
+				break;
+			case 0x08 :
+				usart_write_line(USER_RS232, "<BS>");
+				break;
+			case 0x09 :
+				usart_write_line(USER_RS232, "<HT>");
+				break;
+			case 0x0a :
+				usart_write_line(USER_RS232, "<LF>");
+				break;
+			case 0x0b :
+				usart_write_line(USER_RS232, "<VT>");
+				break;
+			case 0x0c :
+				usart_write_line(USER_RS232, "<FF>");
+				break;
+			case 0x0d :
+				usart_write_line(USER_RS232, "<CR>");
+				break;
+			case 0x0e :
+				usart_write_line(USER_RS232, "<SO>");
+				break;
+			case 0x0f :
+				usart_write_line(USER_RS232, "<SI>");
+				break;
+			case 0x10 :
+				usart_write_line(USER_RS232, "<DLE>");
+				break;
+			case 0x11 :
+				usart_write_line(USER_RS232, "<DC1>");
+				break;
+			case 0x12 :
+				usart_write_line(USER_RS232, "<DC2>");
+				break;
+			case 0x13 :
+				usart_write_line(USER_RS232, "<DC3>");
+				break;
+			case 0x14 :
+				usart_write_line(USER_RS232, "<DC4>");
+				break;
+			case 0x15 :
+				usart_write_line(USER_RS232, "<NAK>");
+				break;
+			case 0x16 :
+				usart_write_line(USER_RS232, "<SYN>");
+				break;
+			case 0x17 :
+				usart_write_line(USER_RS232, "<ETB>");
+				break;
+			case 0x18 :
+				usart_write_line(USER_RS232, "<CAN>");
+				break;
+			case 0x19 :
+				usart_write_line(USER_RS232, "<EM>");
+				break;
+			case 0x1a :
+				usart_write_line(USER_RS232, "<SUB>");
+				break;
+			case 0x1b :
+				usart_write_line(USER_RS232, "<ESC>");
+				break;
+			case 0x1c :
+				usart_write_line(USER_RS232, "<FS>");
+				break;
+			case 0x1d :
+				usart_write_line(USER_RS232, "<GS>");
+				break;
+			case 0x1e :
+				usart_write_line(USER_RS232, "<RS>");
+				break;
+			case 0x1f :
+				usart_write_line(USER_RS232, "<US>");
+				break;
+			case 0x7f :
+				usart_write_line(USER_RS232, "<DEL>");
+				break;
+			default :
+				usart_putchar(USER_RS232, input[i]);
+
+		}
+		i++;
+	}
+}
+
+void outputStringExample( char *pre, char *se, char *su, char *le, short int rn, short int sc ) {
+	char ptemp[20];
+	int j;
+	hexToStringRepresentation(pre);
+		
+	for ( j=0; j<16; j++) {
+
+		if ( sc == 1 ) {
+			sprintf(ptemp, "%1.2E", 0.0);
+		} else if ( rn == 1 ) {
+			sprintf(ptemp, "%1.0f", 0.0);
+		} else{
+			sprintf(ptemp, "%1.2f", 0.0);
+		}
+
+		usart_write_line(USER_RS232, ptemp);
+		
+		if (j<15)
+			hexToStringRepresentation(se);
+		else
+			hexToStringRepresentation(su);
+	}
+	hexToStringRepresentation(le);
 }
 
 

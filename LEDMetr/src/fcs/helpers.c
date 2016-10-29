@@ -52,16 +52,19 @@ void takeCareOfValidDecimalPaces(char *outputString) {
 }
 
 short int measTask(void) {
-	int j;
+	int j, timeout;
 	char ptemp[20];
-
+	
 	usart_write_line(USER_RS232, pref);					//Start of line
-		
+			
 	for (j=0; j<16; j++) {
 		ADToBrightness(&Brightness, AD_Data_Values2Send[j]);
-		if ( !usart_tx_ready(USER_RS232) ) {
-			return 1;
-		}
+		
+		timeout = USART_DEFAULT_TIMEOUT;
+		do
+		{
+			if (!timeout--) return 1;
+		} while ( !usart_tx_ready(USER_RS232) );
 		
 		if (Brightness < 0.25){
 			Brightness = 0;
@@ -77,7 +80,6 @@ short int measTask(void) {
 		
 		//Take care of valid numbers
 		takeCareOfValidDecimalPaces( ptemp );
-
 				
 		usart_write_line(USER_RS232, ptemp);			//Print one value
 		if (j<15)

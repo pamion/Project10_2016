@@ -45,6 +45,7 @@ volatile uint8_t MultiplexerChannel		= 0;
 uint8_t LastStringLenght				= 0;
 double Brightness						= 0;
 volatile uint32_t ADReadsSummator		= 0;	// Slouzi k akumulaci opakovanych cteni hodnoty kanalu a spolu s NumberOfAveragedValues slozi k vypoctu aritmetickeho prumeru.
+volatile int NumberOfAveragedValues		= 0;
 volatile int AveragedReadsCounter		= 0;
 volatile int ChannelSwitchingCounter	= 0;
 volatile int dataReady2send				= FALSE;

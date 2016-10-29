@@ -53,7 +53,7 @@ void ADRead_irq(void)
 		}
 		
 	} else {
-		if ( ChannelSwitchingCounter < MultiplexerSwitchTime ) {
+		if ( ChannelSwitchingCounter < hiddenConfig.settlingTime ) {
 			ChannelSwitchingCounter++;
 		} else {
 			ChannelSwitchedFlag = TRUE;	

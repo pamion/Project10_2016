@@ -22,7 +22,7 @@ static char toASCII[3];
 static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
-static char ptemp[20];					//pomocná promìnná pro výpis
+static char ptemp[50];					//pomocná promìnná pro výpis
 
 /* Variables for saving */
 static uint16_t baud;
@@ -519,7 +519,9 @@ void serialTask(void) {
 		if (recognized == FALSE) {
 			usart_write_line(USER_RS232, "Command not recognized\r\n");
 			usart_write_line(USER_RS232, "Write 'help' to see the list of all commands\r\n");
+#ifdef DEBUG
 			usart_write_line(USER_RS232, sub_str[0]);
+#endif //DEBUG
 		}
 		
 		//Uvolnìní bufferu pro další øìtìzec

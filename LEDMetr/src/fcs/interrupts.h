@@ -20,11 +20,15 @@ extern volatile int AveragedReadsCounter;
 extern volatile uint16_t AD_Data_Values[16];
 extern volatile uint8_t MultiplexerChannel;
 extern volatile int ChannelSwitchingCounter;
+extern volatile int NumberOfAveragedValues;
 extern volatile short int statusRS232;
 extern volatile short int pozRS232;
 extern volatile short int afterFirstQuote;
 extern volatile char bufferRS232[100];
 extern volatile int dataReady2send;
+
+extern nvram_data_t1 hiddenConfig;
+extern nvram_data_t2 publicConfig;
 
 /*
  * \brief Pøerušení pro zpracování A/D pøevodu
