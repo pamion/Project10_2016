@@ -9,8 +9,11 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-//#define CONFIG_PASS			"p9vnqat3"
-#define CONFIG_PASS				"pass" ///< \todo Change it to default pass
+#ifdef DEBUG
+	#define CONFIG_PASS			"pass"
+#else
+	#define CONFIG_PASS			"p9vnqat3"
+#endif //DEBUG
 
 #define TEST_LED				AVR32_PIN_PA23
 #define FPBA					12000000
@@ -146,9 +149,13 @@ typedef struct {
 #define OUTPUT_PREFIX_DEFAULT	0x02, '\0', 0, 0, 0, 0, 0, 0
 #define OUTPUT_SEP_DEFAULT		';', '\0', 0, 0, 0, 0, 0, 0
 #define OUTPUT_SUF_DEFAULT		'\0', 0, 0, 0, 0, 0, 0, 0
-#define OUTPUT_ENDING_DEFAULT	'\r', '\n', '\0', 0, 0, 0, 0, 0
-//#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
-///< /todo Change to default Line ending character
+
+#ifdef DEBUG
+	#define OUTPUT_ENDING_DEFAULT	'\r', '\n', '\0', 0, 0, 0, 0, 0
+#else
+	#define OUTPUT_ENDING_DEFAULT	0x03, '\0', 0, 0, 0, 0, 0, 0
+#endif //DEBUG
+
 
 #define RESERVE_1B				0
 #define RESERVE_2B				0, 0
