@@ -42,6 +42,9 @@ void ADRead_irq(void)
 		//Calculate mean value
 		if( AveragedReadsCounter == NumberOfAveragedValues ) {
 			AD_Data_Values[MultiplexerChannel]=ADReadsSummator/NumberOfAveragedValues;
+			if ( MultiplexerChannel == 15 ) {
+				dataReady2send = TRUE;
+			}
 			setChannelUp(&MultiplexerChannel);
 			SwitchMultiplexerToChannel(&MultiplexerChannel);
 			ADReadsSummator=0;
@@ -50,7 +53,7 @@ void ADRead_irq(void)
 		}
 		
 	} else {
-		if ( ChannelSwitchingCounter != MultiplexerSwitchTime ) {
+		if ( ChannelSwitchingCounter < MultiplexerSwitchTime ) {
 			ChannelSwitchingCounter++;
 		} else {
 			ChannelSwitchedFlag = TRUE;	

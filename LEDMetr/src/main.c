@@ -47,8 +47,9 @@ double Brightness						= 0;
 volatile uint32_t ADReadsSummator		= 0;	// Slouzi k akumulaci opakovanych cteni hodnoty kanalu a spolu s NumberOfAveragedValues slozi k vypoctu aritmetickeho prumeru.
 volatile int AveragedReadsCounter		= 0;
 volatile int ChannelSwitchingCounter	= 0;
-volatile int ChannelSwitchedFlag		= 0;	// 0 - Switching in progress
-												// 1 - Channel switching finished
+volatile int dataReady2send				= FALSE;
+volatile int ChannelSwitchedFlag		= FALSE;	// FALSE - Switching in progress
+													// TRUE  - Channel switching finished
 
 // To specify we have to print a new time
 volatile int print_sec					= 1;	// used as flag
@@ -121,12 +122,13 @@ int main (void) {
 			//If 1ms interrupt has been raised
 			print_sec = 0;
 			
-			if ( ( statusMachine == MACHINE_MEASURE ) && ( tc_tick / RS232WritePeriod ) ) {
+			if ( ( statusMachine == MACHINE_MEASURE ) && ( dataReady2send ) ) {
 				//Copy measured data to send buffer
 				for (i = 0; i < 16; i++) {
 					AD_Data_Values2Send[i] = AD_Data_Values[i];
 				}
 				sendData = 1;
+				dataReady2send = FALSE;
 			}
 			
 			if ( (tc_tick == 100) || (tc_tick == 101) ) {

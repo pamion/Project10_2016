@@ -18,8 +18,7 @@
 #define BrightnessCorrection 	0.01111111
 #define N_VALID_DEC_PLACES		3
 
-#define RS232WritePeriod		1000				// RS-232 write period in ms
-#define NumberOfAveragedValues	30					// Count of readings captured by one channel during single period. MEasurement period fixed, t = 1ms.
+#define NumberOfAveragedValues	60					// Count of readings captured by one channel during single period. MEasurement period fixed, t = 1ms.
 #define MultiplexerSwitchTime	10					// Time reserved for multiplexer channels switching. During this time AD is not read out.
 
 //******* ADRead timing (timer/counter) definitions  *******//
