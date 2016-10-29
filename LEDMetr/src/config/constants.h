@@ -130,7 +130,7 @@ typedef struct {
 #define HW_MAJOR_DEFAULT		' ', '1'
 #define HW_MINOR_DEFAULT		'0', '4'
 #define SW_MAJOR_DEFAULT		' ', '0'
-#define SW_MINOR_DEFAULT		'1', '1'
+#define SW_MINOR_DEFAULT		'1', '2'
 #define HW_SN_DEFAULT			'L', '0', '0', '1', '4', 'B', 'F', '1', '0', '0', '0', '0'
 #define SETTLING_TIME_DEFAULT	10
 #define SAMPLING_RATE_DEFAULT	1000
