@@ -11,7 +11,7 @@
 #define SETUP_H_
 
 extern volatile avr32_tc_t *tc;
-extern volatile int NumberOfAveragedValues;
+extern volatile uint16_t NumberOfAveragedValues;
 extern char pref[9];
 extern char sepa[9];
 extern char suff[9];

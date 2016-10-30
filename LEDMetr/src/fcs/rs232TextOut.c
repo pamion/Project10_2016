@@ -421,7 +421,7 @@ void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint
 	sendTime = ( 1000.0 * EST_CHARS_PER_MSG * 10 / baudRate );
 
 	usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
-	sprintf(ptemp, "%d milliseconds\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
+	sprintf(ptemp, "%d ms\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
 	usart_write_line(USER_RS232, ptemp);
 
 	sprintf(ptemp, "It takes about %d ms ", sendTime );

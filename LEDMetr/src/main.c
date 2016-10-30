@@ -45,7 +45,7 @@ volatile uint8_t MultiplexerChannel		= 0;
 uint8_t LastStringLenght				= 0;
 double Brightness						= 0;
 volatile uint32_t ADReadsSummator		= 0;	// Slouzi k akumulaci opakovanych cteni hodnoty kanalu a spolu s NumberOfAveragedValues slozi k vypoctu aritmetickeho prumeru.
-volatile int NumberOfAveragedValues		= 0;
+volatile uint16_t NumberOfAveragedValues= 0;
 volatile int AveragedReadsCounter		= 0;
 volatile int ChannelSwitchingCounter	= 0;
 volatile int dataReady2send				= FALSE;
@@ -78,21 +78,19 @@ __attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ 
 	.swMinor			= {SW_MINOR_DEFAULT},
 	.hwSN				= {HW_SN_DEFAULT},
 	.settlingTime		=  SETTLING_TIME_DEFAULT,
-	.reserve1			= {RESERVE_2B},
 	.samplingRate		=  SAMPLING_RATE_DEFAULT,
-	.reserve2			= {RESERVE_2B},
 	.adClkPresc			=  AD_CLK_PRESC_DEFAULT,
-	.reserve3			= {RESERVE_3B},
+	.reserve1			= {RESERVE_3B},
 	.pdSens				=  PD_SENS_DEFAULT,
 	.calibOnOff			=  CALIB_ON_OFF_DEFAULT,
-	.reserve4			=  RESERVE_1B,
+	.reserve2			=  RESERVE_1B,
 	.calibData			= {CALIB_DATA_DEFAULT},
 };
 
 __attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ ((aligned (256))) = {
 	.comPortBaudrate	=  COM_PORT_BAUD_DEFAULT,
 	.comPortHandshake	=  COM_PORT_HAND_DEFAULT,
-	.reserve1			=  RESERVE_1B,
+	.reserve1			=  {RESERVE_3B},
 	.measNPLC			=  MEAS_NPLC_DEFAULT,
 	.reserve2			= {RESERVE_3B},
 	.measPowerLineFreq	=  MEAS_PL_FREQ_DEFAULT,

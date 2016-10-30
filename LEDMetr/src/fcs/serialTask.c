@@ -25,7 +25,7 @@ static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o n
 static char ptemp[50];					//pomocná promìnná pro výpis
 
 /* Variables for saving */
-static uint16_t baud;
+static uint32_t baud;
 static uint16_t channelMask;
 static uint8_t handShake;
 static short int save_RS232_changes;
@@ -181,7 +181,7 @@ void serialTask(void) {
 						if CHECK_COMMAND("-t", i) {
 							measTime = atoi(sub_str[i + 1]);
 							if ( (measTime >= 1) && (measTime <= 100) ) {
-								sprintf(ptemp, "->New measurement time will be %d\r\n", measTime);
+								sprintf(ptemp, "->New measurement time will be %d NPLC\r\n", measTime);
 								usart_write_line(USER_RS232, ptemp);
 								i++;
 							} else {

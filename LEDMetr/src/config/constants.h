@@ -98,21 +98,19 @@ typedef struct {
 	char swMinor[2];
 	char hwSN[12];
 	uint16_t settlingTime;
-	char reserve1[2];
 	uint16_t samplingRate;
-	char reserve2[2];
 	uint8_t adClkPresc;
-	char reserve3[3];
+	char reserve1[3];
 	float pdSens;
 	uint8_t calibOnOff;
-	char reserve4;
+	char reserve2;
 	uint16_t calibData[9];
 } nvram_data_t1;
 
 typedef struct {
-	uint16_t comPortBaudrate;
+	uint32_t comPortBaudrate;
 	uint8_t comPortHandshake;
-	char reserve1;
+	char reserve1[3];
 	uint8_t measNPLC;
 	char reserve2[3];
 	uint8_t measPowerLineFreq;
