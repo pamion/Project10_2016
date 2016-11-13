@@ -174,6 +174,7 @@ void serialTask(void) {
 			
 				
 			} else if CHECK_COMMAND("meas", 0) {
+
 				if (paramsCount != 1) {
 					
 					i = 1;
@@ -512,10 +513,11 @@ void serialTask(void) {
 					}
 				} // if (save_RS232_changes == TRUE)
 
-				usart_write_line(USER_RS232, "Changes saved...\r\nRestarting unit...\r\n\r\n");
+				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
 				delay_ms(50); /* Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí... */
 				reset_do_soft_reset();
-			}
+				// END of EXIT command
+			} 
 		}
 
 		/*
@@ -526,12 +528,23 @@ void serialTask(void) {
 		
 		// Pøíkaz nerozpoznán
 		if (recognized == FALSE) {
-			usart_write_line(USER_RS232, "Command not recognized\r\n");
-			usart_write_line(USER_RS232, "Write 'help' to see the list of all commands\r\n");
+			usart_write_line(USER_RS232, "Bad command or argument\r\n");
+			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG
-			usart_write_line(USER_RS232, sub_str[0]);
+			usart_write_line(USER_RS232, "\r\nDebug info: \r\n");
+			for ( i=0; i < paramsCount; i++ ) {
+				usart_write_line(USER_RS232, sub_str[i]);
+				usart_write_line(USER_RS232, " ");
+			}
+			usart_write_line(USER_RS232, "\r\n\r\n");
 #endif //DEBUG
 		}
+		
+		//show command line call sign
+		if (statusMachine >= MACHINE_USER_CONFIGURATION) {
+			usart_write_line(USER_RS232, CMD_LINE_CALL_SIGN);
+		}
+		
 		
 		//Uvolnìní bufferu pro další øìtìzec
 		statusRS232 = RS232_INITIAL;

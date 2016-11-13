@@ -61,6 +61,7 @@ volatile avr32_tc_t *tc					= ADRead_TC;
 volatile short int statusRS232			= RS232_INITIAL;
 volatile short int pozRS232				= 0;
 volatile short int afterFirstQuote		= 0;
+volatile char firstEndingChar			= 0x00;
 volatile char bufferRS232[100];
 
 //Status LuxMetru

@@ -24,6 +24,7 @@ extern volatile uint16_t NumberOfAveragedValues;
 extern volatile short int statusRS232;
 extern volatile short int pozRS232;
 extern volatile short int afterFirstQuote;
+extern volatile char firstEndingChar;
 extern volatile char bufferRS232[100];
 extern volatile int dataReady2send;
 

@@ -79,11 +79,14 @@ void usart_int_handler(void)
 	if (statusRS232 == RS232_WAIT_2_CONFIRM) {
 		bufferRS232[0] = c;
 	} else if (c == 0x0D || c == 0x0A) {			//if CR || LF
+		if (c == firstEndingChar)
+			usart_write_line(USER_RS232, CMD_LINE_CALL_SIGN);
 		if (statusRS232 == RS232_RECIEVING) {		//pokud nepøišel žádný ukonèovací znak
 			statusRS232				= RS232_READY_TO_PROCESS;
 			bufferRS232[pozRS232]	= '\0';
 			pozRS232				= 0;
-			afterFirstQuote			= FALSE;			
+			afterFirstQuote			= FALSE;
+			firstEndingChar			= c;			
 		}
 	} else if (c == 0x7F || c == 0x08) {	//if DELETE or BACKSPACE
 		pozRS232--;
@@ -95,12 +98,12 @@ void usart_int_handler(void)
 		}
 	} else if (c >= 0x20 && c <= 0x7E) {
 		if (statusRS232 != RS232_READY_TO_PROCESS) {					// pokud èeká pøíkaz na zpracování, poèkej si
-																		// TODO: zkontrolovat dávkové pøíkazy
-			if (c == 0x22) {		//Pokud uvozovky
+			if (c == 0x22) {											//Pokud uvozovky
 				afterFirstQuote				= 1 - afterFirstQuote;
 			}
 			bufferRS232[pozRS232++]		= c;
 			statusRS232					= RS232_RECIEVING;
+			firstEndingChar				= 0x00;
 		}
 	}
 }
