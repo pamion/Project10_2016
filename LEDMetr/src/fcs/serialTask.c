@@ -22,6 +22,7 @@ static char toASCII[3];
 static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
+static short int badArguments = FALSE;	
 static char ptemp[50];					//pomocná promìnná pro výpis
 
 /* Variables for saving */
@@ -59,6 +60,7 @@ void serialTask(void) {
 
 		paramsCount = i - 1; 
 		recognized = FALSE;
+		badArguments = FALSE;
 
 		//Vykonání základních pøíkazù
 		if CHECK_COMMAND("help", 0) {
@@ -97,7 +99,7 @@ void serialTask(void) {
 			lineEnd[8]		= '\0';
 			
 			recognized = TRUE;
-
+			badArguments = FALSE;
 		}
 
 		// Standartní konfiguraèní pøíkazy
@@ -109,18 +111,23 @@ void serialTask(void) {
 					i = 1;
 					while (i < paramsCount)	{
 						if CHECK_COMMAND("-b", i) {
-							baud = atoi(sub_str[i + 1]);
-							if ( (baud >= 1200) & (baud <= 115200) ) {
-								sprintf(ptemp, "->New baud rate will be %d\r\n", baud);
-								usart_write_line(USER_RS232, ptemp);
-								i++;
-								if (save_RS232_changes == UNKNOWN) {
-									save_RS232_changes = FALSE;
+							if (validateInput(sub_str[i+1], VAL_INTEGER)) {
+								baud = atoi(sub_str[i + 1]);
+								if ( (baud >= 1200) & (baud <= 115200) ) {
+									sprintf(ptemp, "->New baud rate will be %d\r\n", baud);
+									usart_write_line(USER_RS232, ptemp);
+									if (save_RS232_changes == UNKNOWN) {
+										save_RS232_changes = FALSE;
+									}
+								} else {
+									baud = publicConfig.comPortBaudrate;
+									usart_write_line(USER_RS232, "Error: Baud rate must be between 1200 and 115200 baud.\r\n");
 								}
 							} else {
 								baud = publicConfig.comPortBaudrate;
-								usart_write_line(USER_RS232, "Baud rate must be between 1200 and 115200 baud.\r\n");
+								usart_write_line(USER_RS232, "Error: Baud rate must contain only numbers.\r\n");
 							}
+							i++;
 						} //end if "-b"
 
 						else if CHECK_COMMAND("-h", i) {
@@ -128,26 +135,30 @@ void serialTask(void) {
 							if CHECK_COMMAND("on", i + 1) {
 								usart_write_line(USER_RS232, "->Hardware handshaking will be ON.\r\n");
 								handShake = 1;
-								i++;
 								if (save_RS232_changes == UNKNOWN) {
 									save_RS232_changes = FALSE;
 								}
 							} else if CHECK_COMMAND("off", i + 1) {
 								usart_write_line(USER_RS232, "->Hardware handshaking will be OFF.\r\n");
 								handShake = 0;
-								i++;
 								if (save_RS232_changes == UNKNOWN) {
 									save_RS232_changes = FALSE;
 								}
 							} else {
-								usart_write_line(USER_RS232, "Hardware handshaking could be only on or off.\r\n");
+								usart_write_line(USER_RS232, "Error: Hardware handshaking could be only on or off.\r\n");
 							}
-
+							i++;
 						} //end if "-h"
 						else if CHECK_COMMAND("-s", i) {
 							save_RS232_changes = TRUE;
 							usart_write_line(USER_RS232, "Changes will be saved\r\n");
 						}
+						
+						else {
+							save_RS232_changes = UNKNOWN;
+							usart_write_line(USER_RS232, "Error: Invalid argument\r\n");
+						}
+						
 						i++;
 					} // end-while through params
 
@@ -162,7 +173,7 @@ void serialTask(void) {
 							usart_write_line(USER_RS232, "Changes will be saved\r\n");
 						} else {
 							save_RS232_changes = FALSE;
-							usart_write_line(USER_RS232, "Changes won't be saved\r\n");
+							usart_write_line(USER_RS232, "\r\n");
 						}
 					}
 
@@ -176,19 +187,26 @@ void serialTask(void) {
 			} else if CHECK_COMMAND("meas", 0) {
 
 				if (paramsCount != 1) {
-					
+					badArguments = FALSE;
 					i = 1;
 					while (i < paramsCount)	{
 						if CHECK_COMMAND("-t", i) {
-							measTime = atoi(sub_str[i + 1]);
-							if ( (measTime >= 1) && (measTime <= 100) ) {
-								sprintf(ptemp, "->New measurement time will be %d NPLC\r\n", measTime);
-								usart_write_line(USER_RS232, ptemp);
-								i++;
+							if (validateInput(sub_str[i+1], VAL_INTEGER)) {
+								measTime = atoi(sub_str[i+1]);
+								if ( (measTime >= 1) && (measTime <= 100) ) {
+									sprintf(ptemp, "->New measurement time will be %d NPLC\r\n", measTime);
+									usart_write_line(USER_RS232, ptemp);
+								} else {
+									measTime = publicConfig.measNPLC;
+									usart_write_line(USER_RS232, "Error: Measurement time can be set between 1 and 100 NPLCs.\r\n");
+									badArguments = TRUE;
+								}
 							} else {
 								measTime = publicConfig.measNPLC;
-								usart_write_line(USER_RS232, "Measurement time must be from 1 to 100.\r\n");
+								usart_write_line(USER_RS232, "Error: Measurement time can be integer only.\r\n");
+								badArguments = TRUE;
 							}
+							i++;
 						} //end if "-t"
 
 						else if CHECK_COMMAND("-lf", i) {
@@ -196,14 +214,14 @@ void serialTask(void) {
 							if CHECK_COMMAND("50", i + 1) {
 								usart_write_line(USER_RS232, "->Power line frequency will be set to 50 Hz.\r\n");
 								PLfreq = 50;
-								i++;
-								} else if CHECK_COMMAND("60", i + 1) {
+							} else if CHECK_COMMAND("60", i + 1) {
 								usart_write_line(USER_RS232, "->Power line frequency will be set to 60 Hz.\r\n");
 								PLfreq = 60;
-								i++;
-								} else {
-								usart_write_line(USER_RS232, "Power line frequency could be only 50 or 60 Hz.\r\n");
+							} else {
+								usart_write_line(USER_RS232, "Error: Power line frequency could be only 50 or 60 Hz.\r\n");
+								badArguments = TRUE;
 							}
+							i++;
 
 						} //end if "-lf"
 
@@ -212,15 +230,14 @@ void serialTask(void) {
 							if CHECK_COMMAND("on", i + 1) {
 								usart_write_line(USER_RS232, "->Rounding will be enabled.\r\n");
 								rounding = 1;
-								i++;
 							} else if CHECK_COMMAND("off", i + 1) {
 								usart_write_line(USER_RS232, "->Rounding will be disabled.\r\n");
 								rounding = 0;
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Rounding could be only on or off.\r\n");
+								usart_write_line(USER_RS232, "Error: Rounding could be only on or off.\r\n");
+								badArguments = TRUE;
 							}
-
+							i++;
 						} //end if "-rn"
 
 						else if CHECK_COMMAND("-sc", i) {
@@ -228,26 +245,33 @@ void serialTask(void) {
 							if CHECK_COMMAND("on", i + 1) {
 								usart_write_line(USER_RS232, "->Scientific notation will be enabled.\r\n");
 								science = 1;
-								i++;
 							} else if CHECK_COMMAND("off", i + 1) {
 								usart_write_line(USER_RS232, "->Scientific notation will be disabled.\r\n");
 								science = 0;
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Scientific notation could be only on or off.\r\n");
+								usart_write_line(USER_RS232, "Error: Scientific notation could be only on or off.\r\n");
+								badArguments = TRUE;
 							}
+							i++;
 
 						} //end if "-sc"
 						
+						else {
+							badArguments = TRUE;
+							usart_write_line(USER_RS232, "Error: Invalid argument\r\n");
+						}
 						i++;
 					} // end-while through params
-
-					usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
-					outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
-					usart_write_line(USER_RS232, "\r\n\r\n");
-					measTimeInfo( measTime, PLfreq, hiddenConfig.settlingTime, channelMask, baud );
 					
-					} else {
+					if (badArguments == FALSE) {
+						usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
+						outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
+						usart_write_line(USER_RS232, "\r\n\r\n");
+						measTimeInfo( measTime, PLfreq, hiddenConfig.settlingTime, channelMask, baud );
+					}
+					
+					
+				} else {
 					showMeasHelp();
 				}
 					
@@ -258,6 +282,7 @@ void serialTask(void) {
 				if (paramsCount != 1) {
 
 					i = 1;
+					badArguments = FALSE;
 					while (i < paramsCount)	{
 
 						if CHECK_COMMAND("-p", i) {
@@ -268,26 +293,30 @@ void serialTask(void) {
 									prefix[j-1] = sub_str[i+1][j];
 								prefix[j-1] = '\0';
 								usart_write_line(USER_RS232, "New prefix entered\r\n");
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
+								usart_write_line(USER_RS232, "Error: parameter must be enclosed inside quotation marks, e.g. \":\"\r\n");
+								badArguments = TRUE;
 							}
-
+							i++;
 						} //end if "-p"
 
 						else if CHECK_COMMAND("-pa", i) {
 
-							j = 0;
-							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-								toASCII[0] = sub_str[i+1][2*j];
-								toASCII[1] = sub_str[i+1][2*j+1];
-								toASCII[2] = '\n';
-								prefix[j] = (char)strtoul(toASCII, NULL, 16);
-								j++;
+							if ( validateInput(sub_str[i+1], VAL_HEX) == TRUE ) {
+								j = 0;
+								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = sub_str[i+1][2*j];
+									toASCII[1] = sub_str[i+1][2*j+1];
+									toASCII[2] = '\n';
+									prefix[j] = (char)strtoul(toASCII, NULL, 16);
+									j++;
+								}
+								prefix[j] = '\0';
+								usart_write_line(USER_RS232, "New prefix entered\r\n");
+							} else {
+								usart_write_line(USER_RS232, "Error: Hex input only accepts even count of numbers 0-9 or letters a-f.\r\n");
+								badArguments = TRUE;
 							}
-							prefix[j] = '\0';
-							usart_write_line(USER_RS232, "New prefix entered\r\n");
-
 							i++;
 						} //end if "-pa"
 
@@ -299,26 +328,30 @@ void serialTask(void) {
 									separator[j-1] = sub_str[i+1][j];
 								separator[j-1] = '\0';
 								usart_write_line(USER_RS232, "New separator entered\r\n");
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
+								usart_write_line(USER_RS232, "Error: Parameter must start with \" sign \r\n");
+								badArguments = TRUE;
 							}
-
+							i++;
 						} //end if "-s"
 						
 						else if CHECK_COMMAND("-sa", i) {
 
-							j = 0;
-							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-								toASCII[0] = sub_str[i+1][2*j];
-								toASCII[1] = sub_str[i+1][2*j+1];
-								toASCII[2] = '\n';
-								separator[j] = (char)strtoul(toASCII, NULL, 16);
-								j++;
+							if ( validateInput(sub_str[i+1], VAL_HEX) == TRUE ) {
+								j = 0;
+								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = sub_str[i+1][2*j];
+									toASCII[1] = sub_str[i+1][2*j+1];
+									toASCII[2] = '\n';
+									separator[j] = (char)strtoul(toASCII, NULL, 16);
+									j++;
+								}
+								separator[j] = '\0';
+								usart_write_line(USER_RS232, "New separator entered\r\n");
+							} else {
+								usart_write_line(USER_RS232, "Error: Hex input only accepts even count of numbers 0-9 or letters a-f.\r\n");
+								badArguments = TRUE;
 							}
-							separator[j] = '\0';
-							usart_write_line(USER_RS232, "New separator entered\r\n");
-
 							i++;
 						} //end if "-sa"
 					
@@ -330,26 +363,30 @@ void serialTask(void) {
 									suffix[j-1] = sub_str[i+1][j];
 								suffix[j-1] = '\0';
 								usart_write_line(USER_RS232, "New suffix entered\r\n");
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Parameter must start with \" sign \r\n");
+								usart_write_line(USER_RS232, "Error: Parameter must start with \" sign \r\n");
+								badArguments = TRUE;
 							}
-
+							i++;
 						} //end if "-u"
 						
 						else if CHECK_COMMAND("-ua", i) {
 
-							j = 0;
-							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-								toASCII[0] = sub_str[i+1][2*j];
-								toASCII[1] = sub_str[i+1][2*j+1];
-								toASCII[2] = '\n';
-								suffix[j] = (char)strtoul(toASCII, NULL, 16);
-								j++;
+							if ( validateInput(sub_str[i+1], VAL_HEX) == TRUE ) {
+								j = 0;
+								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = sub_str[i+1][2*j];
+									toASCII[1] = sub_str[i+1][2*j+1];
+									toASCII[2] = '\n';
+									suffix[j] = (char)strtoul(toASCII, NULL, 16);
+									j++;
+								}
+								suffix[j] = '\0';
+								usart_write_line(USER_RS232, "New suffix entered\r\n");
+							} else {
+								usart_write_line(USER_RS232, "Error: Hex input only accepts even count of numbers 0-9 or letters a-f.\r\n");
+								badArguments = TRUE;
 							}
-							suffix[j] = '\0';
-							usart_write_line(USER_RS232, "New suffix entered\r\n");
-
 							i++;
 						} //end if "-ua"
 
@@ -358,69 +395,73 @@ void serialTask(void) {
 							if CHECK_COMMAND("None", i + 1) {
 								lineEnd[0] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to None.\r\n");
-								i++;
 							} else if (CHECK_COMMAND("ETX", i + 1) || CHECK_COMMAND("etx", i + 1)) {
 								lineEnd[0] = 0x03;
 								lineEnd[1] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to ETX (End of Text).\r\n");
-								i++;
 							} else if (CHECK_COMMAND("EOT", i + 1) || CHECK_COMMAND("eot", i + 1)) {
 								lineEnd[0] = 0x04;
 								lineEnd[1] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to EOT (End of Transmission).\r\n");
-								i++;
 							} else if (CHECK_COMMAND("CR", i + 1) || CHECK_COMMAND("cr", i + 1)) {
 								lineEnd[0] = 0x0d;
 								lineEnd[1] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to CR (Carriage Return).\r\n");
-								i++;
 							} else if (CHECK_COMMAND("LF", i + 1) || CHECK_COMMAND("lf", i + 1)){
 								lineEnd[0] = 0x0a;
 								lineEnd[1] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to LF (Line Feed).\r\n");
-								i++;
 							} else if (CHECK_COMMAND("CRLF", i + 1) || CHECK_COMMAND("crlf", i + 1)) {
 								lineEnd[0] = 0x0d;
 								lineEnd[1] = 0x0a;
 								lineEnd[2] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to CRLF (Carriage Return and Line Feed).\r\n");
-								i++;
 							} else if (CHECK_COMMAND("LFCR", i + 1) || CHECK_COMMAND("lfcr", i + 1)) {
 								lineEnd[0] = 0x0a;
 								lineEnd[1] = 0x0d;
 								lineEnd[2] = '\0';
 								usart_write_line(USER_RS232, "Line ending set to LFCR (Line Feed and Carriage Return).\r\n");
-								i++;
 							} else {
-								usart_write_line(USER_RS232, "Not valid line ending.\r\n");
+								usart_write_line(USER_RS232, "Error: Not valid line ending.\r\n");
+								badArguments = TRUE;
 							}
-
+							i++;
 						} //end if "-l"
 
 						else if CHECK_COMMAND("-la", i) {
-
-							j = 0;
-							while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-								toASCII[0] = sub_str[i+1][2*j];
-								toASCII[1] = sub_str[i+1][2*j+1];
-								toASCII[2] = '\n';
-								lineEnd[j] = (char)strtoul(toASCII, NULL, 16);
-								j++;
+							if ( validateInput(sub_str[i+1], VAL_HEX) == TRUE ) {
+								j = 0;
+								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = sub_str[i+1][2*j];
+									toASCII[1] = sub_str[i+1][2*j+1];
+									toASCII[2] = '\n';
+									lineEnd[j] = (char)strtoul(toASCII, NULL, 16);
+									j++;
+								}
+								lineEnd[j] = '\0';
+								usart_write_line(USER_RS232, "New line ending entered\r\n");
+							} else {
+								usart_write_line(USER_RS232, "Error: Hex input only accepts even count of numbers 0-9 or letters a-f.\r\n");
+								badArguments = TRUE;
 							}
-							lineEnd[j] = '\0';
-							usart_write_line(USER_RS232, "New line ending entered\r\n");
-
-							i++;
+							i++;					
 						} //end if "-ua"
+						
+						else {
+							badArguments = TRUE;
+							usart_write_line(USER_RS232, "Error: Invalid argument\r\n");
+						}
 
 						i++;
 					} // end-while through params
 
-					usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
-					outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
-					usart_write_line(USER_RS232, "\r\n\r\n");
+					if ( badArguments == FALSE ) {
+						usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
+						outputStringExample( prefix, separator, suffix, lineEnd, rounding, science );
+						usart_write_line(USER_RS232, "\r\n\r\n");
+					}
 
-					} else {
+				} else {
 					showOutputHelp();
 				}
 			
@@ -430,7 +471,6 @@ void serialTask(void) {
 			} else if (CHECK_COMMAND("exit", 0)  || CHECK_COMMAND("end", 0)) {
 				usart_write_line(USER_RS232, "Saving changes...\r\n");
 				/* TODO: SAVE */
-
 				if ( strncmp(prefix, publicConfig.outputPrefix, 8) != 0 ) {
 					flashc_memcpy(&publicConfig.outputPrefix, &prefix, sizeof(publicConfig.outputPrefix), TRUE);
 					usart_write_line(USER_RS232, "->Prefix set to '");
@@ -528,7 +568,7 @@ void serialTask(void) {
 		
 		// Pøíkaz nerozpoznán
 		if (recognized == FALSE) {
-			usart_write_line(USER_RS232, "Bad command or argument\r\n");
+			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
 			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG
 			usart_write_line(USER_RS232, "\r\nDebug info: \r\n");

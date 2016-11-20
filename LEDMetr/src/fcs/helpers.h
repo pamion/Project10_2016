@@ -52,6 +52,12 @@ void ADToBrightness(double *pBrightness, int AD_Data);
 void takeCareOfValidDecimalPaces(char *outputString);
 
 /*
+ * \brief Validuje vstupní øetìzec
+ *
+ */
+int validateInput(char *str, short type) ;
+
+/*
  * \brief Zobrazí výstup mìøení na RS-232
  * 
  * \return 0 when succes, return 1 when not succes

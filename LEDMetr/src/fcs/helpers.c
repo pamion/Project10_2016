@@ -40,15 +40,68 @@ void ADToBrightness(double *pBrightness, int AD_Data)
 void takeCareOfValidDecimalPaces(char *outputString) {
 		short int i=0;
 		short int N = 1;
+		short int decimal = FALSE;
 		
 		while ( (outputString[i] != '\0') && (outputString[i] != 'E') ) {
+			
 			if ( (outputString[i] >= '0') && (outputString[i] <= '9') ) {
-				if ( N++ > N_VALID_DEC_PLACES ) {
-					outputString[i] = '0';
+				if ( N > N_VALID_DEC_PLACES ) {
+					if ( decimal == TRUE) {
+						outputString[i] = '\0';
+					} else {
+						outputString[i] = '0';
+					}	
+				}
+				N++;
+			} else if (outputString[i] == '.') {
+				decimal = TRUE;
+				if ( N > N_VALID_DEC_PLACES ) {
+					outputString[i] = '\0';
 				}
 			}
 			i++;
-		}	
+		}
+		//if scientific notation occurs, get rid of leading zero
+		if ( (outputString[i++] == 'E') && (outputString[++i] == '0') ) {
+			while (outputString[++i] != '\0') {
+				outputString[i-1] = outputString[i];
+			}
+			outputString[i-1] = '\0';
+		}
+			
+}
+
+int validateInput(char *str, short type) {
+	int i;
+	if (type == VAL_INTEGER) {
+		i = 0;
+		while( str[i] != NULL ) {
+			if ( (str[i] < '0') | (str[i] > '9') ) {
+				return FALSE;
+			}
+			i++;
+		}
+		return TRUE;
+	} 
+	else if ( type == VAL_HEX ) {
+		if ( ( (strlen(str) % 2) == 1 ) || ( strlen(str) == 0 ) ){
+			return FALSE;
+		} else {
+			while( str[i] != NULL ) {
+				if ( !( 
+					( (str[i] >= '0') & (str[i] <= '9') ) |
+					( (str[i] >= 'a') & (str[i] <= 'f') ) |
+					( (str[i] >= 'A') & (str[i] <= 'F') )
+				   ) ) {
+					   return FALSE;
+				}
+				i++;
+			}
+			return TRUE;
+		}
+	} else {
+		return TRUE;
+	}
 }
 
 short int measTask(void) {
@@ -75,7 +128,7 @@ short int measTask(void) {
 		} else if ( publicConfig.measRounding == 1 ) {
 			sprintf(ptemp, "%1.0f", Brightness);
 		} else{
-			sprintf(ptemp, "%1.2f", Brightness);
+			sprintf(ptemp, "%1.4f", Brightness);
 		}
 		
 		//Take care of valid numbers

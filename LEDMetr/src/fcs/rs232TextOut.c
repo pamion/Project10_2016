@@ -400,7 +400,7 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 		} else if ( rn == 1 ) {
 			sprintf(ptemp, "%1.0f", 0.0);
 		} else{
-			sprintf(ptemp, "%1.2f", 0.0);
+			sprintf(ptemp, "%1.4f", 0.0);
 		}
 
 		usart_write_line(USER_RS232, ptemp);
@@ -415,11 +415,23 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 
 void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint16_t toogleMask, uint16_t baudRate ) {
 	char ptemp[60];
-	int cycle, allCycle, sendTime;
+	int cycle, allCycle, sendTime, charsPerMsg;
 	
 	cycle = ( 1000.0 * NPLC / PLFreq + settlingTime );
 	allCycle = __builtin_popcount(toogleMask) * cycle;
-	sendTime = ( 1000.0 * EST_CHARS_PER_MSG * 10 / baudRate );
+	
+	//count msg
+	if ( publicConfig.measScientific == 1 ) {
+		charsPerMsg = CHARS_PER_SC_NUMBER;
+	} else if ( publicConfig.measRounding == 1 ) {
+		charsPerMsg = CHARS_PER_RN_NUMBER;
+	} else {
+		charsPerMsg = CHARS_PER_NORM_NUMBER;
+	}
+	charsPerMsg = 15*strlen(publicConfig.outputSeparator) + 16*charsPerMsg;
+	charsPerMsg += strlen(publicConfig.outputPrefix) + strlen(publicConfig.outputSuffix) + strlen(publicConfig.outputLineEnding);
+	
+	sendTime = ( 1000.0 * charsPerMsg * 10 / baudRate );
 
 	usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
 	sprintf(ptemp, "%d ms\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);

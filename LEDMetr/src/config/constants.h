@@ -22,9 +22,9 @@
 #define Vlog_CONVERSION			65536
 #define BrightnessCorrection 	0.01111111
 #define N_VALID_DEC_PLACES		3
-#define EST_CHARS_PER_MSG_LOW	60
-#define EST_CHARS_PER_MSG_HIGH	250
-#define EST_CHARS_PER_MSG		150
+#define CHARS_PER_SC_NUMBER		7
+#define CHARS_PER_RN_NUMBER		2
+#define CHARS_PER_NORM_NUMBER	5
 
 //******* ADRead timing (timer/counter) definitions  *******//
 #define ADRead_TC               (&AVR32_TC)
@@ -85,6 +85,10 @@
 
 #define UNKNOWN					-1
 #define RS232_SEPARATOR			0x01	//Placeholder for authorization spaces as a character inside quotation marks
+
+/* Validation statuses */
+#define VAL_INTEGER				0
+#define VAL_HEX					1
 
 
 //******* MACROs *******//
