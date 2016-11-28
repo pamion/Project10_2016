@@ -85,22 +85,33 @@ int validateInput(char *str, short type) {
 	} 
 	else if ( type == VAL_HEX ) {
 		if ( ( (strlen(str) % 2) == 1 ) || ( strlen(str) == 0 ) ){
-			return FALSE;
+			return VAL_ODD_CHARS;
+		} else if ( strlen(str) > 16 ) {
+			return VAL_HEX_LEN_ERR;
 		} else {
+			i = 0;
 			while( str[i] != NULL ) {
 				if ( !( 
 					( (str[i] >= '0') & (str[i] <= '9') ) |
 					( (str[i] >= 'a') & (str[i] <= 'f') ) |
 					( (str[i] >= 'A') & (str[i] <= 'F') )
 				   ) ) {
-					   return FALSE;
+					   return VAL_BAD_HEX;
 				}
 				i++;
 			}
 			return TRUE;
 		}
+	} else if ( type == VAL_OUTPUT_STR ) {
+		if ( strlen(str) > 10 ) {
+			return VAL_STR_LEN_ERR;
+		} else if ( ( str[0] != '"' ) || ( str[ strlen(str)-1 ] != '"' ) ) {
+			return VAL_STR_QOTATION_ERR;
+		} else {
+			return TRUE;
+		}
 	} else {
-		return TRUE;
+		return FALSE;
 	}
 }
 
@@ -128,7 +139,7 @@ short int measTask(void) {
 		} else if ( publicConfig.measRounding == 1 ) {
 			sprintf(ptemp, "%1.0f", Brightness);
 		} else{
-			sprintf(ptemp, "%1.4f", Brightness);
+			sprintf(ptemp, "%1.2f", Brightness);
 		}
 		
 		//Take care of valid numbers

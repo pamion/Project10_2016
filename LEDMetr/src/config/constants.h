@@ -89,6 +89,13 @@
 /* Validation statuses */
 #define VAL_INTEGER				0
 #define VAL_HEX					1
+#define VAL_OUTPUT_STR			2
+
+#define VAL_HEX_LEN_ERR			-1
+#define VAL_STR_LEN_ERR			-2
+#define VAL_STR_QOTATION_ERR	-3
+#define VAL_ODD_CHARS			-4
+#define VAL_BAD_HEX				-5
 
 
 //******* MACROs *******//

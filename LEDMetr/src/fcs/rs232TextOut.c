@@ -278,7 +278,7 @@ void showOutputHelp(void) {
 	usart_write_line(USER_RS232, "           characters (0x0d0a in hexadecimal ASCII).\r\n");	 
 }
 
-void  hexToStringRepresentation(char *input ) {
+void hexToStringRepresentation(char *input ) {
 	int i = 0;
 	
 	while ( input[i] != '\0' ) {
@@ -400,7 +400,7 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 		} else if ( rn == 1 ) {
 			sprintf(ptemp, "%1.0f", 0.0);
 		} else{
-			sprintf(ptemp, "%1.4f", 0.0);
+			sprintf(ptemp, "%1.2f", 0.0);
 		}
 
 		usart_write_line(USER_RS232, ptemp);
