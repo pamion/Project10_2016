@@ -135,7 +135,6 @@ void serialTask(void)
 				//End of EXPCONF command
 					
 			} else if CHECK_COMMAND("discart", 0) {
-					
 				usart_write_line(USER_RS232, "Discarting changes...\r\n");
 				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
 				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
@@ -152,6 +151,7 @@ void serialTask(void)
 				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
 				reset_do_soft_reset();
 				// END of END/EXIT commands
+				
 			} else {
 				recognized = FALSE;
 			}
@@ -191,8 +191,8 @@ void serialTask(void)
 			}			
 		} // END of factory config. commands
 
-		// Pøíkaz nerozpoznán
-		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) ) {
+		// Pøíkaz nerozpoznán - bìhem konfigurace - nepøišel znak enter
+		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
 			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
 			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG
@@ -201,22 +201,24 @@ void serialTask(void)
 				usart_write_line(USER_RS232, subBuff[i]);
 				usart_write_line(USER_RS232, " ");
 			}
-			usart_write_line(USER_RS232, "\r\n\r\n");
 #endif //DEBUG
 		}		
 		
+		/* Show call sign after each commands */
+
+
+		if ( ( buff_stat == BUFFER_LINE_END ) && ( statusMachine != MACHINE_MEASURE ) ) {
+			if (statusMachine >= MACHINE_FACTORY_CONFIGURATION) {
+				usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
+			} else {
+				usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
+			}
+		}
 		
 	} /* END main IF - if buffer is ready */
 
 	
-	/* Show call sign after each commands */
-	if ( ( buff_stat == BUFFER_LINE_END ) && ( statusMachine != MACHINE_MEASURE ) && ( !bufferIsLineReady(&buffIn) )) {
-		if (statusMachine >= MACHINE_FACTORY_CONFIGURATION) {
-			usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
-		} else {
-			usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
-		}
-	}
+	
 
 	
 	/*

@@ -164,7 +164,6 @@ void showComportWarning(void) {
 	usart_write_line(USER_RS232, "command. In order to communicate with the luxmeter after that, you will need\r\n");
 	usart_write_line(USER_RS232, "to change your terminal program settings accordingly.\r\n");
 	usart_write_line(USER_RS232, "Do you wish to continue? (Y/N)\r\n");
-	usart_write_line(USER_RS232, CMD_LINE_CALL_SIGN);
 }
 
 void showMeasHelp(void) {
