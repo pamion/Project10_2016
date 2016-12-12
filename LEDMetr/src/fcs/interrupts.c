@@ -13,6 +13,7 @@
 #include "constants.h"
 #include "helpers.h"
 #include "setup.h"
+#include "buffer.h"
 #include "interrupts.h"
 
 #if defined (__GNUC__)
@@ -76,7 +77,9 @@ void usart_int_handler(void)
 
 	usart_read_char(USER_RS232, &c);
 	
-	if (statusRS232 == RS232_WAIT_2_CONFIRM) {
+	bufferWriteChar (&buffIn, c);
+	
+	/*if (statusRS232 == RS232_WAIT_2_CONFIRM) {
 		bufferRS232[0] = c;
 	} else if (c == 0x0D || c == 0x0A) {			//if CR || LF
 		if (c == firstEndingChar)
@@ -105,5 +108,5 @@ void usart_int_handler(void)
 			statusRS232					= RS232_RECIEVING;
 			firstEndingChar				= 0x00;
 		}
-	}
+	}*/
 }

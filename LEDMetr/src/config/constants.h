@@ -15,7 +15,8 @@
 	#define CONFIG_PASS			"p9vnqat3"
 #endif //DEBUG
 
-#define CMD_LINE_CALL_SIGN		"> "
+#define CMD_LINE_SIGN_NORMAL	"\r\n> "
+#define CMD_LINE_SIGN_FACTORY	"\r\n#> "
 
 #define TEST_LED				AVR32_PIN_PA23
 #define FPBA					12000000
@@ -78,6 +79,9 @@
 #define MACHINE_FACTORY_CONFIGURATION	2
 
 /* RS232 status definitions */
+#define RS232_BUFF_IN_SIZE		200
+#define SUBBUFF_LEN				10
+/*
 #define RS232_INITIAL			0		//Initial				- waiting for the first character
 #define RS232_RECIEVING			1		//Byte recieving		- waiting for the terminator char
 #define RS232_READY_TO_PROCESS	2		//Terminator recieved	- waiting for process
@@ -85,7 +89,7 @@
 
 #define UNKNOWN					-1
 #define RS232_SEPARATOR			0x01	//Placeholder for authorization spaces as a character inside quotation marks
-
+*/
 /* Validation statuses */
 #define VAL_INTEGER				0
 #define VAL_HEX					1
@@ -100,7 +104,7 @@
 
 //******* MACROs *******//
 #define CHECK_BIT(var,pos)				((var) & (1<<(pos)))
-#define CHECK_COMMAND(command, level)	(strcmp(sub_str[level], command) == 0)
+#define CHECK_COMMAND(command, level)	(strcmp(subBuff[level], command) == 0)
 #define DISP_ON_OFF(var)				if (var == 1) usart_write_line(USER_RS232, "ON"); else usart_write_line(USER_RS232, "OFF")
 #define DISP_ON_OFF_SPACE(var)			if (var == 1) usart_write_line(USER_RS232, "ON "); else usart_write_line(USER_RS232, "OFF")
 

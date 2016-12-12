@@ -119,7 +119,7 @@ short int measTask(void) {
 	int j, timeout;
 	char ptemp[20];
 	
-	usart_write_line(USER_RS232, pref);					//Start of line
+	usart_write_line(USER_RS232, publicConfig.outputPrefix);				//Start of line
 			
 	for (j=0; j<16; j++) {
 		ADToBrightness(&Brightness, AD_Data_Values2Send[j]);
@@ -145,12 +145,12 @@ short int measTask(void) {
 		//Take care of valid numbers
 		takeCareOfValidDecimalPaces( ptemp );
 				
-		usart_write_line(USER_RS232, ptemp);			//Print one value
+		usart_write_line(USER_RS232, ptemp);								//Print one value
 		if (j<15)
-			usart_write_line(USER_RS232, sepa);			//Print separator
+			usart_write_line(USER_RS232, publicConfig.outputSeparator);	//Print separator
 		else
-			usart_write_line(USER_RS232, suff);			//Print suffix
+			usart_write_line(USER_RS232, publicConfig.outputSuffix);		//Print suffix
 	}
-	usart_write_line(USER_RS232, lend);					//Print End of line
+	usart_write_line(USER_RS232, publicConfig.outputLineEnding);			//Print End of line
 	return 0;
 }

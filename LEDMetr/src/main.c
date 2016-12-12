@@ -36,6 +36,7 @@
 #include "fcs/interrupts.h"
 #include "fcs/rs232TextOut.h"
 #include "fcs/serialTask.h"
+#include "fcs/buffer.h"
 
 //******* GLOBAL VARIABLES *******//
 volatile uint16_t AD_Data				= 0;
@@ -58,19 +59,25 @@ volatile U32 tc_tick					= 0;
 volatile avr32_tc_t *tc					= ADRead_TC;
 
 //Promìnné pro naèítání øetìzce
+volatile struct T_buffer buffIn;
+volatile char buffInChar[RS232_BUFF_IN_SIZE];
+
+/*
 volatile short int statusRS232			= RS232_INITIAL;
 volatile short int pozRS232				= 0;
 volatile short int afterFirstQuote		= 0;
 volatile char firstEndingChar			= 0x00;
 volatile char bufferRS232[100];
-
+*/
 //Status LuxMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
 
+/*
 char pref[9];
 char sepa[9];
 char suff[9];
 char lend[9];
+*/
 
 __attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256))) = {
 	.hwMajor			= {HW_MAJOR_DEFAULT},
@@ -111,12 +118,15 @@ int main (void) {
 	short int i;
 	short int sendData = 0;
 	float ErrVoltage  = -1;
+	char ptemp[20];
+	
+	bufferInit(&buffIn, &buffInChar, RS232_BUFF_IN_SIZE);
 
 	mainInit();
 	
 	while (1) {
 		//Process all data from terminal, if there is any
-		serialTask();
+		serialTask();				
 
 		if (print_sec) {
 			//If 1ms interrupt has been raised
@@ -149,10 +159,10 @@ int main (void) {
 			if ( ( ErrVoltage > ADC_ERR_VOLT_LOW ) && ( ErrVoltage < ADC_ERR_VOLT_HIGH ) ) {
 				sendData = measTask();
 			} else {
-				usart_write_line(USER_RS232, pref);					//Start of line
+				usart_write_line(USER_RS232, publicConfig.outputPrefix);					//Start of line
 				usart_write_line(USER_RS232, "Err01 - check photodiode connections!");
-				usart_write_line(USER_RS232, suff);					//Print suffix
-				usart_write_line(USER_RS232, lend);					//Print End of line
+				usart_write_line(USER_RS232, publicConfig.outputSuffix);					//Print suffix
+				usart_write_line(USER_RS232, publicConfig.outputLineEnding);					//Print End of line
 				sendData = 0;
 			}
 			

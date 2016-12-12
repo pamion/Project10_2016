@@ -246,15 +246,6 @@ void mainInit(void) {
 	// Start the timer/counter.
 	tc_start(tc, TC_CHANNEL);                    // Start 1ms timer/counter.	
 	
-	strncpy(pref, publicConfig.outputPrefix,	 8);
-	strncpy(sepa, publicConfig.outputSeparator,	 8);
-	strncpy(suff, publicConfig.outputSuffix,	 8);
-	strncpy(lend, publicConfig.outputLineEnding, 8);
-	pref[8]	= '\0';
-	sepa[8]	= '\0';
-	suff[8]	= '\0';
-	lend[8]	= '\0';
-	
 	NumberOfAveragedValues = round(1000.0 * publicConfig.measNPLC / publicConfig.measPowerLineFreq);
 	
 

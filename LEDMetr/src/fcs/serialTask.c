@@ -13,20 +13,25 @@
 #include "constants.h"
 #include "helpers.h"
 #include "rs232TextOut.h"
+#include "buffer.h"
 #include "serialTask.h"
 
-
-static char *sub_str[10];				//pole ukazatelù rozdìlených podle mezer
-static char s[2];						//pomocná promìnná pro rozsekání
-static char toASCII[3];
+static char subBuff[SUBBUFF_LEN][20];	//pole ukazatelù rozdìlených podle mezer
+/*static char s[2];						//pomocná promìnná pro rozsekání
+static char toASCII[3];*/
 static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
+
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
 static short int badArguments = FALSE;	
 static char ptemp[50];					//pomocná promìnná pro výpis
 static short int valOut;
 
+
 /* Variables for saving */
+nvram_data_t1 hiddenConfigNew, hiddenConfig2Save;
+nvram_data_t2 publicConfigNew, publicConfig2Save;
+/*
 static uint32_t baud;
 static uint16_t channelMask;
 static uint8_t handShake;
@@ -39,24 +44,189 @@ static char prefix[9];
 static char separator[9];
 static char suffix[9];
 static char lineEnd[9];
+*/
+void serialTask(void)
+{
+	
+	int buff_stat = BUFFER_INIT;
 
-void serialTask(void) {
-	if (statusRS232 == RS232_READY_TO_PROCESS) {
-		//rozøezání na podøetìzce podle mezery
+	if ( bufferIsLineReady(&buffIn) ) {
 		i = 0;
-		s[0] = RS232_SEPARATOR; s[1] = 0x00;
-		sub_str[i] = strtok(bufferRS232, s);
-		while( sub_str[i] != NULL ) {
-			sub_str[++i] = strtok(NULL, s);
+		recognized = TRUE;
+		badArguments = FALSE;
+		//Vyètení øádku z bufferu
+		buff_stat = BUFFER_SUCCESS;
+		while (buff_stat == BUFFER_SUCCESS) {
+			buff_stat = bufferReadWord(&buffIn, &subBuff[i++]);
 		}
+		paramsCount = i;
+		for (i; i < SUBBUFF_LEN; i++) {
+			subBuff[i++][0] = NULL;
+		}
+		
+		//Vykonání základních pøíkazù
+		if CHECK_COMMAND("help", 0) {
+			usart_write_line(USER_RS232, "Showing help\r\n");
 
-		//Odstranìní øídících znakù, když se objeví (pro jistotu)
+		} else if CHECK_COMMAND("info", 0) {
+			showInfoText();
+
+		} else if CHECK_COMMAND("config", 0) {
+			if CHECK_COMMAND(CONFIG_PASS, 1) {
+				statusMachine = MACHINE_FACTORY_CONFIGURATION;
+				usart_write_line(USER_RS232, "HIDDEN FACTORY SETTINGS:\r\n");
+			} else {
+				statusMachine = MACHINE_USER_CONFIGURATION;
+				showConfigText();
+			}
+			
+			/* Prepare global variables for saving
+			   Two separate instances are needed for algorithm to be capable roll back changes after unsuccesfull command */	
+			memcpy(&hiddenConfigNew, &hiddenConfig, sizeof(hiddenConfig));
+			memcpy(&hiddenConfig2Save, &hiddenConfig, sizeof(hiddenConfig));
+			memcpy(&publicConfigNew, &publicConfig, sizeof(hiddenConfig));
+			memcpy(&publicConfig2Save, &publicConfig, sizeof(hiddenConfig));
+		} else {
+			recognized = FALSE;
+		}
+		
+		// Standartní konfiguraèní pøíkazy
+		if ( (statusMachine >= MACHINE_USER_CONFIGURATION) && (recognized == FALSE) ) {
+			recognized = TRUE;
+			
+			if CHECK_COMMAND("comport", 0) {
+				usart_write_line(USER_RS232, "Comport command: Comming soon...\r\n");
+				
+				//End of COMPORT command
+				
+			} else if CHECK_COMMAND("output", 0) {
+				usart_write_line(USER_RS232, "Output command: Comming soon...\r\n");
+				
+				//End of OUTPUT command
+				
+			} else if CHECK_COMMAND("meas", 0) {
+				usart_write_line(USER_RS232, "Meas command: Comming soon...\r\n");
+				
+				//End of MEAS command
+				
+			} else if CHECK_COMMAND("channels", 0) {
+				usart_write_line(USER_RS232, "Channels command: Comming soon...\r\n");
+				
+				//End of CHANNELS command
+				
+			} else if CHECK_COMMAND("defaults", 0) {
+				usart_write_line(USER_RS232, "Defaults command: Comming soon...\r\n");
+				
+				//End of DEFAULTS command
+				
+			} else if CHECK_COMMAND("help", 0) {
+				usart_write_line(USER_RS232, "Help command: Comming soon...\r\n");
+				
+				//End of HELP command
+				
+			} else if CHECK_COMMAND("info", 0) {
+				usart_write_line(USER_RS232, "Info command: Comming soon...\r\n");
+				
+				//End of INFO command
+			
+			} else if CHECK_COMMAND("expconf", 0) {
+				usart_write_line(USER_RS232, "Expconf command: Comming soon...\r\n");
+				
+				//End of EXPCONF command
+					
+			} else if CHECK_COMMAND("discart", 0) {
+					
+				usart_write_line(USER_RS232, "Discarting changes...\r\n");
+				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
+				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
+				reset_do_soft_reset();
+				// END of DISCART command
+			
+			} else if ( CHECK_COMMAND("exit", 0) || CHECK_COMMAND("end", 0) || CHECK_COMMAND("save", 0) ) {
+				usart_write_line(USER_RS232, "Saving changes...\r\n");
+				
+				/*TODO: SAVE */
+				
+				
+				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
+				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
+				reset_do_soft_reset();
+				// END of END/EXIT commands
+			} else {
+				recognized = FALSE;
+			}
+		} // END of standart config. commands
+		
+
+		// Skrytá tovární nastavení
+		if ( (statusMachine >= MACHINE_FACTORY_CONFIGURATION) && (recognized == FALSE) ) {
+			recognized = TRUE;
+			if CHECK_COMMAND("hwver", 0) {
+				usart_write_line(USER_RS232, "HW version command: Comming soon...\r\n");
+				
+				//End of HWVER command
+				
+			} else if CHECK_COMMAND("sernum", 0) {
+				usart_write_line(USER_RS232, "Serial number change command: Comming soon...\r\n");
+				
+				//End of SERNUM command
+				
+			} else if CHECK_COMMAND("adcparam", 0) {
+				usart_write_line(USER_RS232, "A/D converter parameters command: Comming soon...\r\n");
+				
+				//End of ADCPARAMS command
+							
+			} else if CHECK_COMMAND("pdsens", 0) {
+				usart_write_line(USER_RS232, "PhotoDiode Sensitivity command: Comming soon...\r\n");
+				
+				//End of PDSENS command
+				
+			} else if CHECK_COMMAND("calib", 0) {
+				usart_write_line(USER_RS232, "Calibration command: Comming soon...\r\n");
+				
+				//End of CALIB command			
+						
+			} else {
+				recognized = FALSE;
+			}			
+		} // END of factory config. commands
+
+		// Pøíkaz nerozpoznán
+		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) ) {
+			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
+			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
+#ifdef DEBUG
+			usart_write_line(USER_RS232, "\r\nDebug info: \r\n");
+			for ( i=0; i < paramsCount; i++ ) {
+				usart_write_line(USER_RS232, subBuff[i]);
+				usart_write_line(USER_RS232, " ");
+			}
+			usart_write_line(USER_RS232, "\r\n\r\n");
+#endif //DEBUG
+		}		
+		
+		
+	} /* END main IF - if buffer is ready */
+
+	
+	/* Show call sign after each commands */
+	if ( ( buff_stat == BUFFER_LINE_END ) && ( statusMachine != MACHINE_MEASURE ) && ( !bufferIsLineReady(&buffIn) )) {
+		if (statusMachine >= MACHINE_FACTORY_CONFIGURATION) {
+			usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
+		} else {
+			usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
+		}
+	}
+
+	
+	/*
+	int buff_stat;
+	
+	if ( bufferIsLineReady(&buffIn) ) {
 		i = 0;
-		while( sub_str[i++] != NULL ) {
-			//Odstraníme znak nového øádku, pokud by se nám dostal na konec pøíkazu
-			sub_str[i][strcspn ( sub_str[i], "\n" )] = '\0';
-			//Odstraníme znak "carriage return", pokud by se nám dostal na konec pøíkazu
-			sub_str[i][strcspn ( sub_str[i], "\r" )] = '\0';
+		buff_stat = BUFFER_SUCCESS;
+		while (buff_stat == BUFFER_SUCCESS) {
+			buff_stat = bufferReadWord(&buffIn, &subBuff[i++]);
 		}
 
 		paramsCount = i - 1; 
@@ -112,8 +282,8 @@ void serialTask(void) {
 					i = 1;
 					while (i < paramsCount)	{
 						if CHECK_COMMAND("-b", i) {
-							if (validateInput(sub_str[i+1], VAL_INTEGER)) {
-								baud = atoi(sub_str[i + 1]);
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								baud = atoi(subBuff[i + 1]);
 								if ( (baud >= 1200) & (baud <= 115200) ) {
 									sprintf(ptemp, "->New baud rate will be %d\r\n", baud);
 									usart_write_line(USER_RS232, ptemp);
@@ -198,8 +368,8 @@ void serialTask(void) {
 					i = 1;
 					while (i < paramsCount)	{
 						if CHECK_COMMAND("-t", i) {
-							if (validateInput(sub_str[i+1], VAL_INTEGER)) {
-								measTime = atoi(sub_str[i+1]);
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								measTime = atoi(subBuff[i+1]);
 								if ( (measTime >= 1) && (measTime <= 100) ) {
 									sprintf(ptemp, "->New measurement time will be %d NPLC\r\n", measTime);
 									usart_write_line(USER_RS232, ptemp);
@@ -296,11 +466,11 @@ void serialTask(void) {
 					while (i < paramsCount)	{
 
 						if CHECK_COMMAND("-p", i) {
-							valOut = validateInput( sub_str[i+1], VAL_OUTPUT_STR );
+							valOut = validateInput( subBuff[i+1], VAL_OUTPUT_STR );
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
-									prefix[j-1] = sub_str[i+1][j];
+								while ( (subBuff[i+1][++j] != '"') && (subBuff[i+1][j] != '\0') && (j < 9) )
+									prefix[j-1] = subBuff[i+1][j];
 								prefix[j-1] = '\0';
 								usart_write_line(USER_RS232, "New prefix entered\r\n");
 							} else {
@@ -310,12 +480,12 @@ void serialTask(void) {
 						} //end if "-p"
 
 						else if CHECK_COMMAND("-pa", i) {
-							valOut = validateInput(sub_str[i+1], VAL_HEX);
+							valOut = validateInput(subBuff[i+1], VAL_HEX);
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-									toASCII[0] = sub_str[i+1][2*j];
-									toASCII[1] = sub_str[i+1][2*j+1];
+								while ( (subBuff[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = subBuff[i+1][2*j];
+									toASCII[1] = subBuff[i+1][2*j+1];
 									toASCII[2] = '\n';
 									prefix[j] = (char)strtoul(toASCII, NULL, 16);
 									j++;
@@ -329,11 +499,11 @@ void serialTask(void) {
 						} //end if "-pa"
 
 						else if CHECK_COMMAND("-s", i) {
-							valOut = validateInput( sub_str[i+1], VAL_OUTPUT_STR );
+							valOut = validateInput( subBuff[i+1], VAL_OUTPUT_STR );
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
-									separator[j-1] = sub_str[i+1][j];
+								while ( (subBuff[i+1][++j] != '"') && (subBuff[i+1][j] != '\0') && (j < 9) )
+									separator[j-1] = subBuff[i+1][j];
 								separator[j-1] = '\0';
 								usart_write_line(USER_RS232, "New separator entered\r\n");
 							} else {
@@ -343,12 +513,12 @@ void serialTask(void) {
 						} //end if "-s"
 						
 						else if CHECK_COMMAND("-sa", i) {
-							valOut = validateInput(sub_str[i+1], VAL_HEX);
+							valOut = validateInput(subBuff[i+1], VAL_HEX);
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-									toASCII[0] = sub_str[i+1][2*j];
-									toASCII[1] = sub_str[i+1][2*j+1];
+								while ( (subBuff[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = subBuff[i+1][2*j];
+									toASCII[1] = subBuff[i+1][2*j+1];
 									toASCII[2] = '\n';
 									separator[j] = (char)strtoul(toASCII, NULL, 16);
 									j++;
@@ -362,11 +532,11 @@ void serialTask(void) {
 						} //end if "-sa"
 					
 						else if CHECK_COMMAND("-u", i) {
-							valOut = validateInput( sub_str[i+1], VAL_OUTPUT_STR );
+							valOut = validateInput( subBuff[i+1], VAL_OUTPUT_STR );
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][++j] != '"') && (sub_str[i+1][j] != '\0') && (j < 9) )
-									suffix[j-1] = sub_str[i+1][j];
+								while ( (subBuff[i+1][++j] != '"') && (subBuff[i+1][j] != '\0') && (j < 9) )
+									suffix[j-1] = subBuff[i+1][j];
 								suffix[j-1] = '\0';
 								usart_write_line(USER_RS232, "New suffix entered\r\n");
 							} else {
@@ -376,12 +546,12 @@ void serialTask(void) {
 						} //end if "-u"
 						
 						else if CHECK_COMMAND("-ua", i) {
-							valOut = validateInput(sub_str[i+1], VAL_HEX);
+							valOut = validateInput(subBuff[i+1], VAL_HEX);
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-									toASCII[0] = sub_str[i+1][2*j];
-									toASCII[1] = sub_str[i+1][2*j+1];
+								while ( (subBuff[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = subBuff[i+1][2*j];
+									toASCII[1] = subBuff[i+1][2*j+1];
 									toASCII[2] = '\n';
 									suffix[j] = (char)strtoul(toASCII, NULL, 16);
 									j++;
@@ -432,12 +602,12 @@ void serialTask(void) {
 						} //end if "-l"
 
 						else if CHECK_COMMAND("-la", i) {
-							valOut = validateInput(sub_str[i+1], VAL_HEX);
+							valOut = validateInput(subBuff[i+1], VAL_HEX);
 							if ( valOut == TRUE ) {
 								j = 0;
-								while ( (sub_str[i+1][2*j] != '\0') && (j < 18) ){
-									toASCII[0] = sub_str[i+1][2*j];
-									toASCII[1] = sub_str[i+1][2*j+1];
+								while ( (subBuff[i+1][2*j] != '\0') && (j < 18) ){
+									toASCII[0] = subBuff[i+1][2*j];
+									toASCII[1] = subBuff[i+1][2*j+1];
 									toASCII[2] = '\n';
 									lineEnd[j] = (char)strtoul(toASCII, NULL, 16);
 									j++;
@@ -487,7 +657,6 @@ void serialTask(void) {
 
 			} else if (CHECK_COMMAND("exit", 0)  || CHECK_COMMAND("end", 0)) {
 				usart_write_line(USER_RS232, "Saving changes...\r\n");
-				/* TODO: SAVE */
 				if ( strncmp(prefix, publicConfig.outputPrefix, 8) != 0 ) {
 					flashc_memcpy(&publicConfig.outputPrefix, &prefix, sizeof(publicConfig.outputPrefix), TRUE);
 					usart_write_line(USER_RS232, "->Prefix set to '");
@@ -571,11 +740,12 @@ void serialTask(void) {
 				} // if (save_RS232_changes == TRUE)
 
 				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
-				delay_ms(50); /* Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí... */
+				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí... 
 				reset_do_soft_reset();
 				// END of EXIT command
 			} 
 		}
+		*/
 
 		/*
 		// Skrytá tovární nastavení
@@ -583,6 +753,7 @@ void serialTask(void) {
 			
 		} */
 		
+		/*
 		// Pøíkaz nerozpoznán
 		if (recognized == FALSE) {
 			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
@@ -590,7 +761,7 @@ void serialTask(void) {
 #ifdef DEBUG
 			usart_write_line(USER_RS232, "\r\nDebug info: \r\n");
 			for ( i=0; i < paramsCount; i++ ) {
-				usart_write_line(USER_RS232, sub_str[i]);
+				usart_write_line(USER_RS232, subBuff[i]);
 				usart_write_line(USER_RS232, " ");
 			}
 			usart_write_line(USER_RS232, "\r\n\r\n");
@@ -606,4 +777,5 @@ void serialTask(void) {
 		//Uvolnìní bufferu pro další øìtìzec
 		statusRS232 = RS232_INITIAL;
 	}
+	*/
 }

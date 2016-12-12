@@ -85,17 +85,17 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "Output string settings: Prefix=\"");
-	hexToStringRepresentation(pref);
+	hexToStringRepresentation(publicConfig.outputPrefix);
 	usart_write_line(USER_RS232, "\", separator is \"");
-	hexToStringRepresentation(sepa);
+	hexToStringRepresentation(publicConfig.outputSeparator);
 	usart_write_line(USER_RS232, "\",\r\n");
 	usart_write_line(USER_RS232, "  suffix is \"");
-	hexToStringRepresentation(suff);
+	hexToStringRepresentation(publicConfig.outputSuffix);
 	usart_write_line(USER_RS232, "\" and line ending is \"");
-	hexToStringRepresentation(lend);
+	hexToStringRepresentation(publicConfig.measPowerLineFreq);
 	usart_write_line(USER_RS232, "\".\r\n");
 	usart_write_line(USER_RS232, "Example:\r\n");
-	outputStringExample( pref, sepa, suff, lend, publicConfig.measRounding, publicConfig.measScientific );
+	outputStringExample( publicConfig.outputPrefix, publicConfig.outputSeparator, publicConfig.outputSuffix, publicConfig.outputLineEnding, publicConfig.measRounding, publicConfig.measScientific );
 	usart_write_line(USER_RS232, "\r\n\r\n");
 
 	measTimeInfo( publicConfig.measNPLC, publicConfig.measPowerLineFreq, hiddenConfig.settlingTime, publicConfig.channelsToogleMask, publicConfig.comPortBaudrate );
@@ -112,6 +112,7 @@ void showConfigText(void) {
 	usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 	usart_write_line(USER_RS232, "Enter \"help (command)\" to get available attributes of a command.\r\n");
 	usart_write_line(USER_RS232, "Use \"exit\" to save configuration, exit from this menu and resume measurement.\r\n\r\n");
+	usart_write_line(USER_RS232, "Use \"discart\" to discart all changes, exit from this menu and resume measurement.\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "For quick configuration, you can use a batch of commands in the format:\r\n\r\n");
 	

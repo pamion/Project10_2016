@@ -478,6 +478,12 @@
     <Compile Include="src\config\constants.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\fcs\buffer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\fcs\buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\fcs\helpers.c">
       <SubType>compile</SubType>
     </Compile>
