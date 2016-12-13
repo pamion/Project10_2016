@@ -21,7 +21,7 @@ static char subBuff[SUBBUFF_LEN][20];	//pole ukazatelù rozdìlených podle mezer
 static char toASCII[3];*/
 static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
-
+static short int saveComPort = UNKNOWN;
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
 static short int badArguments = FALSE;	
 static char ptemp[50];					//pomocná promìnná pro výpis
@@ -54,6 +54,7 @@ void serialTask(void)
 		i = 0;
 		recognized = TRUE;
 		badArguments = FALSE;
+		
 		//Vyètení øádku z bufferu
 		buff_stat = BUFFER_SUCCESS;
 		while (buff_stat == BUFFER_SUCCESS) {
@@ -86,6 +87,7 @@ void serialTask(void)
 			memcpy(&hiddenConfig2Save, &hiddenConfig, sizeof(hiddenConfig));
 			memcpy(&publicConfigNew, &publicConfig, sizeof(hiddenConfig));
 			memcpy(&publicConfig2Save, &publicConfig, sizeof(hiddenConfig));
+			saveComPort = UNKNOWN;
 		} else {
 			recognized = FALSE;
 		}
@@ -95,12 +97,92 @@ void serialTask(void)
 			recognized = TRUE;
 			
 			if CHECK_COMMAND("comport", 0) {
-				usart_write_line(USER_RS232, "Comport command: Comming soon...\r\n");
-				
+				if (paramsCount != 1) {
+					i = 1;
+					if (saveComPort == FALSE) {
+						saveComPort = UNKNOWN;
+					}
+					while ( (i < paramsCount) && (badArguments == FALSE) ) {
+						if CHECK_COMMAND("-b", i) {
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								publicConfigNew.comPortBaudrate = atoi(subBuff[i + 1]);
+								if ( (publicConfigNew.comPortBaudrate >= 1200) & (publicConfigNew.comPortBaudrate <= 115200) ) {
+									sprintf(ptemp, "->New baud rate will be %d\r\n", publicConfigNew.comPortBaudrate);
+									usart_write_line(USER_RS232, ptemp);
+									
+								} else {
+									publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
+									usart_write_line(USER_RS232, "Error: Baud rate must be between 1200 and 115200 baud.\r\n");
+									badArguments = INVALID;
+								}
+							} else {
+								publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
+								usart_write_line(USER_RS232, "Error: Baud rate must contain only numbers.\r\n");
+								badArguments = INVALID;
+							}
+							i++;
+							 //end if "-b"
+							 
+						} else if CHECK_COMMAND("-h", i) {
+							if CHECK_COMMAND("on", i + 1) {
+								usart_write_line(USER_RS232, "->Hardware handshaking will be ON.\r\n");
+								publicConfigNew.comPortHandshake = 1;
+							} else if CHECK_COMMAND("off", i + 1) {
+								usart_write_line(USER_RS232, "->Hardware handshaking will be OFF.\r\n");
+								publicConfigNew.comPortHandshake = 0;
+
+							} else {
+								usart_write_line(USER_RS232, "Error: Hardware handshaking could be only on or off.\r\n");
+								badArguments = INVALID;
+							}
+							i++;
+							
+							 //end if "-h"
+						} else if CHECK_COMMAND("-s", i) {
+							saveComPort = TRUE;
+							 //end if "-s"
+							 
+						} else {
+							i = paramsCount;
+							badArguments = TRUE;
+						}
+						i++;
+					} /* end-while trough params */
+					
+					if (badArguments == FALSE) {
+						/* Confirm promt */
+						if (saveComPort == UNKNOWN) {
+							showComportWarning();
+						}
+						while (saveComPort == UNKNOWN) {
+							if ( bufferIsLineReady(&buffIn) ) {
+								bufferReadWord(&buffIn, &ptemp);
+								if ( (ptemp[0] == 'Y') || (ptemp[0] == 'y') ) {
+									saveComPort = TRUE;
+									usart_write_line(USER_RS232, "Changes will be saved\r\n");
+								} else if ( (ptemp[0] == 'N') || (ptemp[0] == 'n') ) {
+									saveComPort = FALSE;
+									usart_write_line(USER_RS232, "\r\n");
+								}
+							}
+						}
+					
+						if (saveComPort == TRUE) {
+							publicConfig2Save.comPortBaudrate = publicConfigNew.comPortBaudrate;
+							publicConfig2Save.comPortHandshake = publicConfigNew.comPortHandshake;
+						}	
+					} else {
+						publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
+						publicConfigNew.comPortHandshake = publicConfig2Save.comPortHandshake;
+					}
+					
+				} else {
+					showComportHelp();
+				}
 				//End of COMPORT command
 				
 			} else if CHECK_COMMAND("output", 0) {
-				usart_write_line(USER_RS232, "Output command: Comming soon...\r\n");
+				usart_write_line(USER_RS232, "OUTPUT command: Comming soon...\r\n");
 				
 				//End of OUTPUT command
 				
@@ -145,7 +227,24 @@ void serialTask(void)
 				usart_write_line(USER_RS232, "Saving changes...\r\n");
 				
 				/*TODO: SAVE */
-				
+				if (saveComPort == TRUE) {
+					
+					if (publicConfig2Save.comPortBaudrate != publicConfig.comPortBaudrate) {
+						flashc_memcpy(&publicConfig.comPortBaudrate, &publicConfig2Save.comPortBaudrate, sizeof(publicConfig2Save.comPortBaudrate), TRUE);
+						sprintf(ptemp, "->Baud rate set to %2d\r\n", publicConfig2Save.comPortBaudrate);
+						usart_write_line(USER_RS232, ptemp);
+					}
+					
+					if (publicConfig2Save.comPortHandshake != publicConfig.comPortHandshake) {
+						flashc_memcpy(&publicConfig.comPortHandshake, &publicConfig2Save.comPortHandshake, sizeof(publicConfig2Save.comPortHandshake), TRUE);
+						usart_write_line(USER_RS232, "->RTS/CTS set to ");
+						if (publicConfig2Save.comPortHandshake == 1) {
+							usart_write_line(USER_RS232, "ON\r\n");
+						} else {
+							usart_write_line(USER_RS232, "OFF\r\n");
+						}
+					}
+				} // if (saveComPort == TRUE)				
 				
 				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
 				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
@@ -155,10 +254,10 @@ void serialTask(void)
 			} else {
 				recognized = FALSE;
 			}
-		} // END of standart config. commands
+		} /* END of standart config. commands */
 		
 
-		// Skrytá tovární nastavení
+		/* Skrytá tovární nastavení */
 		if ( (statusMachine >= MACHINE_FACTORY_CONFIGURATION) && (recognized == FALSE) ) {
 			recognized = TRUE;
 			if CHECK_COMMAND("hwver", 0) {
@@ -202,11 +301,21 @@ void serialTask(void)
 				usart_write_line(USER_RS232, " ");
 			}
 #endif //DEBUG
+		}
+		
+		// Pøíkaz nerozpoznán - bìhem konfigurace - nepøišel znak enter
+		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
+			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
+			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
+		} else
+		
+		// Argument nerozpoznán - bìhem konfigurace - nepøišel znak enter
+		if ( (badArguments == TRUE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
+			usart_write_line(USER_RS232, "Error: Bad command or argument\r\n");
+			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 		}		
 		
 		/* Show call sign after each commands */
-
-
 		if ( ( buff_stat == BUFFER_LINE_END ) && ( statusMachine != MACHINE_MEASURE ) ) {
 			if (statusMachine >= MACHINE_FACTORY_CONFIGURATION) {
 				usart_write_line(USER_RS232, CMD_LINE_SIGN_NORMAL);
