@@ -20,16 +20,6 @@ extern volatile uint16_t AD_Data_Values[16];
 extern volatile uint32_t ADReadsSummator;
 extern volatile int AveragedReadsCounter;
 extern volatile uint8_t MultiplexerChannel;
-/*
-
-extern volatile int print_sec;
-extern volatile uint16_t NumberOfAveragedValues;
-extern volatile short int statusRS232;
-extern volatile short int pozRS232;
-extern volatile short int afterFirstQuote;
-extern volatile char firstEndingChar;
-extern volatile char bufferRS232[100];
-*/
 extern nvram_data_t1 hiddenConfig;
 extern nvram_data_t2 publicConfig;
 

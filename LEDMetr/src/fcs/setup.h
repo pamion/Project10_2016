@@ -13,12 +13,6 @@
 extern volatile avr32_tc_t *tc;
 extern volatile uint16_t NumberOfAveragedValues;
 /*
-extern char pref[9];
-extern char sepa[9];
-extern char suff[9];
-extern char lend[9];
-*/
-/*
  * \brief Konfiguruje GPIO pro adresové sbìrnice multiplexeru a povolí je
  * 
  */

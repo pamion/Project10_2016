@@ -83,15 +83,7 @@
 #define SUBBUFF_LEN				10
 #define UNKNOWN					-1
 #define INVALID					-1
-/*
-#define RS232_INITIAL			0		//Initial				- waiting for the first character
-#define RS232_RECIEVING			1		//Byte recieving		- waiting for the terminator char
-#define RS232_READY_TO_PROCESS	2		//Terminator recieved	- waiting for process
-#define RS232_WAIT_2_CONFIRM	3		//Waiting for confirmation character
 
-
-#define RS232_SEPARATOR			0x01	//Placeholder for authorization spaces as a character inside quotation marks
-*/
 /* Validation statuses */
 #define VAL_INTEGER				0
 #define VAL_HEX					1

@@ -12,12 +12,6 @@
 
 extern nvram_data_t1 hiddenConfig;
 extern nvram_data_t2 publicConfig;
-/*
-extern char pref[9];
-extern char sepa[9];
-extern char suff[9];
-extern char lend[9];
-*/
 
 /*
  * /brief Funkce pro zobrazení textù vyvolaných pøi zavolání pøíkazu INFO
