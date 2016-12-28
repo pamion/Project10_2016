@@ -88,19 +88,21 @@
 #define VAL_INTEGER				0
 #define VAL_HEX					1
 #define VAL_OUTPUT_STR			2
+#define VAL_BINARY				3
 
 #define VAL_HEX_LEN_ERR			-1
 #define VAL_STR_LEN_ERR			-2
 #define VAL_STR_QOTATION_ERR	-3
 #define VAL_ODD_CHARS			-4
 #define VAL_BAD_HEX				-5
+#define VAL_BIN_LEN_ERR			-6
 
 
 //******* MACROs *******//
 #define CHECK_BIT(var,pos)				((var) & (1<<(pos)))
 #define CHECK_COMMAND(command, level)	(strcmp(subBuff[level], command) == 0)
-#define DISP_ON_OFF(var)				if (var == 1) usart_write_line(USER_RS232, "ON"); else usart_write_line(USER_RS232, "OFF")
-#define DISP_ON_OFF_SPACE(var)			if (var == 1) usart_write_line(USER_RS232, "ON "); else usart_write_line(USER_RS232, "OFF")
+#define DISP_ON_OFF(var)				if (var == 0x8000) usart_write_line(USER_RS232, "ON"); else usart_write_line(USER_RS232, "OFF")
+#define DISP_ON_OFF_SPACE(var)			if (var == 0x8000) usart_write_line(USER_RS232, "ON "); else usart_write_line(USER_RS232, "OFF")
 
 typedef struct {
 	char hwMajor[2];

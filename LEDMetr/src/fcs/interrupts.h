@@ -20,6 +20,7 @@ extern volatile uint16_t AD_Data_Values[16];
 extern volatile uint32_t ADReadsSummator;
 extern volatile int AveragedReadsCounter;
 extern volatile uint8_t MultiplexerChannel;
+extern short int enabledChannels;
 extern nvram_data_t1 hiddenConfig;
 extern nvram_data_t2 publicConfig;
 

@@ -16,12 +16,14 @@ extern volatile int print_sec;
 extern volatile uint16_t AD_Data_Values2Send[16];
 extern double Brightness;
 
+int channelCount(uint16_t channel);
+
 /*
  * \brief Zvedne èíslo kanálu o 1 nahoru
  * 
  * \param Ukazatel na èíslo kanálu (globální)
  */
-void setChannelUp (uint8_t *CurrentChannel);
+int setChannelUp (uint8_t *CurrentChannel);
 
 /*
  * \brief Sníí èíslo kanálu o 1 dolù

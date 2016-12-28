@@ -149,10 +149,10 @@ void mainInit(void) {
 		.covfs = 0
 	};
 
+	
 	pcl_switch_to_osc(PCL_OSC0, FOSC0, OSC0_STARTUP);
-
+	
 	INTC_register_interrupt(&ADRead_irq, ADRead_TC_IRQ, AVR32_INTC_INT0);
-
 	// Initialize the timer/counter.
 	tc_init_waveform(tc, &WAVEFORM_OPT);         // Initialize the timer/counter waveform.
 
@@ -161,9 +161,9 @@ void mainInit(void) {
 	// We configure it to count ms.
 	// We want: (1/(fPBA/8)) * RC = 0.001 s, hence RC = (fPBA/8) / 1000 = 1500 to get an interrupt every 1 ms.
 	tc_write_rc(tc, TC_CHANNEL, (FPBA / 8) / 1000); // Set RC value.
-
+	
 	tc_configure_interrupts(tc, TC_CHANNEL, &TC_INTERRUPT);
-
+	
 	//******* USER_LED GPIO SETTINGS *******//
 	gpio_configure_pin(TEST_LED,GPIO_DIR_OUTPUT);
 
@@ -226,8 +226,6 @@ void mainInit(void) {
 	/* Enable the ADC channels. */
 	adc_enable(&AVR32_ADC, ADC_ERROR_CHANNEL);
 
-	
-	
 	gpio_set_gpio_pin(TEST_LED);
 
 	enable_Multiplexer();
@@ -243,10 +241,12 @@ void mainInit(void) {
 
 	SwitchMultiplexerToChannel(&MultiplexerChannel);
 	
-	// Start the timer/counter.
-	tc_start(tc, TC_CHANNEL);                    // Start 1ms timer/counter.	
-	
 	NumberOfAveragedValues = round(1000.0 * publicConfig.measNPLC / publicConfig.measPowerLineFreq);
 	
-
+	enabledChannels = channelCount(publicConfig.channelsToogleMask);
+	
+	if (enabledChannels > 0) {
+		// Start the timer/counter.
+		tc_start(tc, TC_CHANNEL);                    // Start 1ms timer/counter.
+	}
 }

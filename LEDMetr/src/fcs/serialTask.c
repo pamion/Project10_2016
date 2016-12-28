@@ -24,7 +24,7 @@ static short int saveComPort = UNKNOWN;
 static short int recognized = TRUE;		//pomocná promìnná pro vypsání nápovìdy o neznámém pøíkazu
 static short int badArguments = FALSE;	
 static char ptemp[50];					//pomocná promìnná pro výpis
-static short int valOut;
+static short int valOut, channel;
 
 
 /* Variables for saving */
@@ -47,7 +47,7 @@ void serialTask(void)
 			buff_stat = bufferReadWord(&buffIn, &subBuff[i++]);
 		}
 		paramsCount = i;
-		for (i; i < SUBBUFF_LEN; i++) {
+		for (i = paramsCount; i < SUBBUFF_LEN; i++) {
 			subBuff[i++][0] = NULL;
 		}
 		
@@ -217,7 +217,7 @@ void serialTask(void)
 								usart_write_line(USER_RS232, "Error: Rounding could be only on or off.\r\n");
 								badArguments = INVALID;
 							}
-							//end if "-xxx"
+							//end if "-rn"
 							
 						} else if CHECK_COMMAND("-sc", i) {
 							if CHECK_COMMAND("on", i + 1) {
@@ -231,7 +231,7 @@ void serialTask(void)
 							} else {
 								badArguments = INVALID;
 							}
-							//end if "-xxx"
+							//end if "-sc"
 							
 						} else {
 							i = paramsCount;
@@ -469,12 +469,117 @@ void serialTask(void)
 				//End of OUTPUT command
 				
 			} else if CHECK_COMMAND("channels", 0) {
-				usart_write_line(USER_RS232, "Channels command: Comming soon...\r\n");
-				
+				if (paramsCount != 1) {
+					i = 1;
+					while ( (i < paramsCount) && (badArguments == FALSE) ) {
+						if CHECK_COMMAND("-ae", i) { // ALL ENABLE
+							publicConfigNew.channelsToogleMask = 0xFFFF;
+							usart_write_line(USER_RS232, "All channels enabled\r\n");
+							//end if "-ea"
+							
+						} else if CHECK_COMMAND("-ad", i) { // ALL DISABLE
+							publicConfigNew.channelsToogleMask = 0x0000;
+							usart_write_line(USER_RS232, "All channels disabled\r\n");
+							//end if "-ed"
+						
+						} else if CHECK_COMMAND("-ce", i) { //CHANNEL ENABLE
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								channel = atoi(subBuff[i+1]);
+								if ( (channel >= 1) && (channel <= 16) ) {
+									sprintf(ptemp, "->Channel %d will be enabled\r\n", channel);
+									usart_write_line(USER_RS232, ptemp);
+									publicConfigNew.channelsToogleMask = publicConfigNew.channelsToogleMask | (0x8000 >> (channel-1) );
+									i++;
+								} else { // not in range
+									publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+									usart_write_line(USER_RS232, "Error: Channel number can be only between 1 and 16.\r\n");
+									badArguments = INVALID;
+								}
+							} else { // not a number
+								publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+								usart_write_line(USER_RS232, "Error: Channel number can be integer only.\r\n");
+								badArguments = INVALID;
+							}
+							//end if "-ce"
+						
+						} else if CHECK_COMMAND("-cd", i) { //CHANNEL DISABLE
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								channel = atoi(subBuff[i+1]);
+								if ( (channel >= 1) && (channel <= 16) ) {
+									sprintf(ptemp, "->Channel %d will be disabled\r\n", channel);
+									usart_write_line(USER_RS232, ptemp);
+									publicConfigNew.channelsToogleMask = publicConfigNew.channelsToogleMask & (~(0x8000 >> (channel-1) ));
+									i++;
+								} else { // not in range
+									publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+									usart_write_line(USER_RS232, "Error: Channel number can be only between 1 and 16.\r\n");
+									badArguments = INVALID;
+								}
+							} else { // not a number
+								publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+								usart_write_line(USER_RS232, "Error: Channel number can be integer only.\r\n");
+								badArguments = INVALID;
+							}
+							//end if "-cd"
+						
+						} else if CHECK_COMMAND("-ct", i) { //CHANNEL TOOGLE
+							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
+								channel = atoi(subBuff[i+1]);
+								if ( (channel >= 1) && (channel <= 16) ) {
+									sprintf(ptemp, "->Channel %d will be toogled\r\n", channel);
+									usart_write_line(USER_RS232, ptemp);
+									publicConfigNew.channelsToogleMask = publicConfigNew.channelsToogleMask ^ (0x8000 >> (channel-1) );
+									i++;
+								} else { // not in range
+									publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+									usart_write_line(USER_RS232, "Error: Channel number can be only between 1 and 16.\r\n");
+									badArguments = INVALID;
+								}
+							} else { // not a number
+								publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+								usart_write_line(USER_RS232, "Error: Channel number can be integer only.\r\n");
+								badArguments = INVALID;
+							}
+							//end if "-ct"
+						
+						} else if CHECK_COMMAND("-cm", i) { //CHANNEL MASK
+							valOut = validateInput(subBuff[i+1], VAL_BINARY);
+							if (valOut == TRUE) {
+								usart_write_line(USER_RS232, "->Channels enabled/disabled according to entered mask.\r\n");
+								publicConfigNew.channelsToogleMask = strtol(subBuff[i+1], NULL, 2);
+								i++;
+							} else if (valOut == VAL_BIN_LEN_ERR) {
+								publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+								usart_write_line(USER_RS232, "Error: Mask length need to be 16 characters long.\r\n");
+								badArguments = INVALID;
+							} else { // not a 0 / 1
+								publicConfigNew.channelsToogleMask = publicConfig2Save.channelsToogleMask;
+								usart_write_line(USER_RS232, "Error: Mask can only contain characters 0 and 1.\r\n");
+								badArguments = INVALID;
+							}
+							//end if "-cm"
+						
+						} else {
+							i = paramsCount;
+							badArguments = TRUE;
+						}
+						i++;
+						/* end-while trough params */
+					}
+					if (badArguments == FALSE) {
+						//Apply all changes, when NO problem with line occurs
+						publicConfig2Save.channelsToogleMask	= publicConfigNew.channelsToogleMask;
+					} else { 
+						//Revert all changes, when ANY problem with line occurs
+						publicConfigNew.channelsToogleMask		= publicConfig2Save.channelsToogleMask;						
+					}
+				} else { // if only name of command arrived
+					showChannelsHelp();
+				}
 				//End of CHANNELS command
 				
 			} else if CHECK_COMMAND("defaults", 0) {
-				usart_write_line(USER_RS232, "Defaults command: Comming soon...\r\n");
+				usart_write_line(USER_RS232, "Channels command: Comming soon...\r\n");
 				
 				//End of DEFAULTS command
 				
@@ -570,6 +675,12 @@ void serialTask(void)
 					} else {
 						usart_write_line(USER_RS232, "OFF\r\n");
 					}
+				}
+				
+				if (publicConfig2Save.channelsToogleMask != publicConfig.channelsToogleMask) {
+					enabledChannels = channelCount(publicConfig2Save.channelsToogleMask);
+					flashc_memcpy(&publicConfig.channelsToogleMask, &publicConfig2Save.channelsToogleMask, sizeof(publicConfig2Save.channelsToogleMask), TRUE);
+					usart_write_line(USER_RS232, "->Enabling/disabling channels.\r\n");
 				}				
 				
 				if (saveComPort == TRUE) {

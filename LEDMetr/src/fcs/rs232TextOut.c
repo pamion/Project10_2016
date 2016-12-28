@@ -48,38 +48,38 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, ".\r\n");
 	
 	usart_write_line(USER_RS232, "\r\nChannel status (");
-	sprintf(ptemp, "%d", __builtin_popcount(publicConfig.channelsToogleMask));
+	sprintf(ptemp, "%d", channelCount(publicConfig.channelsToogleMask));
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " channels are ON):\r\n");
 	
 	aux = publicConfig.channelsToogleMask;
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n");
 	for (i = 0; i < 8; i++ ) {
-		sprintf(ptemp, "| Ch%02d ", i);
+		sprintf(ptemp, "| Ch%02d ", i+1);
 		usart_write_line(USER_RS232, ptemp);
 	}
 	usart_write_line(USER_RS232, "|\r\n");
 	
 	for (i = 0; i < 8; i++ ) {
 		usart_write_line(USER_RS232, "| ");
-		DISP_ON_OFF_SPACE( (aux & 0x0001) );
+		DISP_ON_OFF_SPACE( (aux & 0x8000) );
 		usart_write_line(USER_RS232, "  ");
-		aux = aux >> 1;
+		aux = aux << 1;
 	}
 	usart_write_line(USER_RS232, "|\r\n");
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n");
 	
 	for (i = 8; i < 16; i++ ) {
-		sprintf(ptemp, "| Ch%02d ", i);
+		sprintf(ptemp, "| Ch%02d ", i+1);
 		usart_write_line(USER_RS232, ptemp);
 	}
 	usart_write_line(USER_RS232, "|\r\n");
 	
 	for (i = 8; i < 16; i++ ) {
 		usart_write_line(USER_RS232, "| ");
-		DISP_ON_OFF_SPACE( (aux & 0x0001) );
+		DISP_ON_OFF_SPACE( (aux & 0x8000) );
 		usart_write_line(USER_RS232, "  ");
-		aux = aux >> 1;
+		aux = aux << 1;
 	}
 	usart_write_line(USER_RS232, "|\r\n");
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n\r\n");
@@ -278,6 +278,45 @@ void showOutputHelp(void) {
 	usart_write_line(USER_RS232, "           characters (0x0d0a in hexadecimal ASCII).\r\n");	 
 }
 
+void showChannelsHelp(void) {
+	usart_write_line(USER_RS232, "Information:\r\n");
+	usart_write_line(USER_RS232, "  This command can individually or en masse enable and disable luxmeter\r\n");
+	usart_write_line(USER_RS232, "  channels. Disabling unused channels can considerably speed up measurement\r\n");
+	usart_write_line(USER_RS232, "  cycle. All 16 channels are enabled by default. The luxmeter will always send\r\n");
+	usart_write_line(USER_RS232, "  all 16 results, but disabled channels will read as zero. If no channels are\r\n");
+	usart_write_line(USER_RS232, "  enabled, the luxmeter will stop sending the result strings altogether. See\r\n");
+	usart_write_line(USER_RS232, "  \"output\" command for more information about output string formatting.\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Usage:\r\n");
+	usart_write_line(USER_RS232, "       channels <arguments>\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Arguments:\r\n");
+	usart_write_line(USER_RS232, "-ce (channel number)  Enables a channel, channel number range is 1 to 16.\r\n");
+	usart_write_line(USER_RS232, "                      Channel number can have leading zero, e.g. 03 instead of\r\n");
+	usart_write_line(USER_RS232, "                      just 3. Only one channel number is accepted, but you can\r\n");
+	usart_write_line(USER_RS232, "                      use more consecutive -ce (channel number) arguments.\r\n");
+	usart_write_line(USER_RS232, "-cd (channel number)  Disables a channel.\r\n");
+	usart_write_line(USER_RS232, "-ct (channel number)  Toggles a channel.\r\n");
+	usart_write_line(USER_RS232, "-cm (mask)            Enables or disables channels according to a binary\r\n");
+	usart_write_line(USER_RS232, "                      mask. The mask length must be 16 characters and must\r\n");
+	usart_write_line(USER_RS232, "                      contain numerals 0 and 1 only. The leftmost character\r\n");
+	usart_write_line(USER_RS232, "                      of the mask controls channel 1, the rightmost controls\r\n");
+	usart_write_line(USER_RS232, "                      channel 16.\r\n");
+	usart_write_line(USER_RS232, "-ae                   Enables all 16 channels.\r\n");
+	usart_write_line(USER_RS232, "-ad                   Disables all 16 channels.\r\n\r\n");
+
+
+	usart_write_line(USER_RS232, "Examples:\r\n");
+	usart_write_line(USER_RS232, "       channels -ae\r\n");
+	usart_write_line(USER_RS232, "           Enables all 16 luxmeter channels.\r\n");
+	usart_write_line(USER_RS232, "       channels -ad -ce 2 -ce 5\r\n");
+	usart_write_line(USER_RS232, "           Disables all channels and then enables\r\n");
+	usart_write_line(USER_RS232, "           channels 2 and 5 of the luxmeter.\r\n");
+	usart_write_line(USER_RS232, "       channels -cm 0100100000000000\r\n");
+	usart_write_line(USER_RS232, "           Results in the same channel configuration\r\n");
+	usart_write_line(USER_RS232, "           as in example above, but using channel mask.\r\n");
+}
+
 void hexToStringRepresentation(char *input ) {
 	int i = 0;
 	
@@ -418,7 +457,7 @@ void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint
 	int cycle, allCycle, sendTime, charsPerMsg;
 	
 	cycle = ( 1000.0 * NPLC / PLFreq + settlingTime );
-	allCycle = __builtin_popcount(toogleMask) * cycle;
+	allCycle = channelCount(toogleMask) * cycle;
 	
 	//count msg
 	if ( publicConfig.measScientific == 1 ) {

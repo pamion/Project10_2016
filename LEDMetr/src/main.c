@@ -49,6 +49,7 @@ volatile uint32_t ADReadsSummator		= 0;	// Slouzi k akumulaci opakovanych cteni 
 volatile uint16_t NumberOfAveragedValues= 0;
 volatile int AveragedReadsCounter		= 0;
 volatile int ChannelSwitchingCounter	= 0;
+short int enabledChannels;
 volatile int dataReady2send				= FALSE;
 volatile int ChannelSwitchedFlag		= FALSE;	// FALSE - Switching in progress
 													// TRUE  - Channel switching finished
@@ -62,22 +63,8 @@ volatile avr32_tc_t *tc					= ADRead_TC;
 volatile struct T_buffer buffIn;
 volatile char buffInChar[RS232_BUFF_IN_SIZE];
 
-/*
-volatile short int statusRS232			= RS232_INITIAL;
-volatile short int pozRS232				= 0;
-volatile short int afterFirstQuote		= 0;
-volatile char firstEndingChar			= 0x00;
-volatile char bufferRS232[100];
-*/
 //Status LuxMetru
 volatile short int statusMachine		= MACHINE_MEASURE;
-
-/*
-char pref[9];
-char sepa[9];
-char suff[9];
-char lend[9];
-*/
 
 __attribute__((section (".userpage"))) nvram_data_t1 hiddenConfig __attribute__ ((aligned (256))) = {
 	.hwMajor			= {HW_MAJOR_DEFAULT},

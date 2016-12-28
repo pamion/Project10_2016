@@ -13,12 +13,34 @@
 #include "constants.h"
 #include "helpers.h"
 
+uint16_t mask;
+
+int channelCount(uint16_t channel) {
+	short count, i;
+	count = 0;
+	for (i=0; i<16; i++) {
+		count = count + ((channel >> i) & 0x0001);
+	}
+	return count;
+}
 
 
-void setChannelUp (uint8_t *CurrentChannel)
+int setChannelUp (uint8_t *CurrentChannel)
 {
-	(*CurrentChannel)++;
-	*CurrentChannel=(*CurrentChannel)%16;
+	int ret = FALSE;
+	do {
+		(*CurrentChannel)++;
+		*CurrentChannel=(*CurrentChannel)%16;
+		
+		mask = publicConfig.channelsToogleMask;
+		mask = (mask << (*CurrentChannel)) & 0x8000;
+		
+		if ( (*CurrentChannel)==15 ) {
+			ret = TRUE;
+		}
+		
+	} while ( mask != 0x8000 );
+	return ret;
 }
 
 void setChannelDown (uint8_t *CurrentChannel)
@@ -82,8 +104,20 @@ int validateInput(char *str, short type) {
 			i++;
 		}
 		return TRUE;
-	} 
-	else if ( type == VAL_HEX ) {
+	} else if (type == VAL_BINARY) {
+		if (strlen(str) != 16) {
+			return VAL_BIN_LEN_ERR;
+		} else {
+			i = 0;
+			while( str[i] != NULL ) {
+				if ( (str[i] != '0') && ( str[i] != '1' ) ) {
+					return FALSE;
+				}
+				i++;
+			}
+			return TRUE;
+		}
+	} else if ( type == VAL_HEX ) {
 		if ( ( (strlen(str) % 2) == 1 ) || ( strlen(str) == 0 ) ){
 			return VAL_ODD_CHARS;
 		} else if ( strlen(str) > 16 ) {

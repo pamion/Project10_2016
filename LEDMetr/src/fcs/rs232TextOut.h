@@ -50,6 +50,12 @@ void showMeasHelp(void);
 void showOutputHelp(void);
 
 /*
+ * /brief Funkce pro zobrazení nápovìdy pøíkazu CHANNELS
+ *
+ */
+void showChannelsHelp(void);
+
+/*
  * /brief Funkce pro zobrazení stringù obsahující netisknutelné znaky
  *
  */

@@ -12,6 +12,7 @@
 
 extern volatile avr32_tc_t *tc;
 extern volatile uint16_t NumberOfAveragedValues;
+extern short int enabledChannels;
 /*
  * \brief Konfiguruje GPIO pro adresové sbìrnice multiplexeru a povolí je
  * 
