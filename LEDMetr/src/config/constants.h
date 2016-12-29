@@ -18,7 +18,10 @@
 #define CMD_LINE_SIGN_NORMAL	"\r\n> "
 #define CMD_LINE_SIGN_FACTORY	"\r\n#> "
 
-#define TEST_LED				AVR32_PIN_PA23
+#define RESET_TIME				3000
+
+#define LED_PIN					AVR32_PIN_PA23
+#define RESET_BTN				AVR32_PIN_PA26
 #define FPBA					12000000
 #define Vlog_CONVERSION			65536
 #define BrightnessCorrection 	0.01111111

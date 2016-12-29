@@ -92,8 +92,9 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, "  suffix is \"");
 	hexToStringRepresentation(publicConfig.outputSuffix);
 	usart_write_line(USER_RS232, "\" and line ending is \"");
-	hexToStringRepresentation(publicConfig.measPowerLineFreq);
+	hexToStringRepresentation(publicConfig.outputLineEnding);
 	usart_write_line(USER_RS232, "\".\r\n");
+	
 	usart_write_line(USER_RS232, "Example:\r\n");
 	outputStringExample( publicConfig.outputPrefix, publicConfig.outputSeparator, publicConfig.outputSuffix, publicConfig.outputLineEnding, publicConfig.measRounding, publicConfig.measScientific );
 	usart_write_line(USER_RS232, "\r\n\r\n");
@@ -127,6 +128,71 @@ void showConfigText(void) {
 	
 	usart_write_line(USER_RS232, "Use \"expconf\" command to export a configuration batch of current\r\n");
 	usart_write_line(USER_RS232, "luxmeter settings.\r\n\r\n");
+}
+
+void showDefaultsHelp(void) {
+	char ptemp[50];
+	char outputPrefix[8]		= {OUTPUT_PREFIX_DEFAULT};
+	char outputSeparator[8]		= {OUTPUT_SEP_DEFAULT};
+	char outputSuffix[8]		= {OUTPUT_SUF_DEFAULT};
+	char outputLineEnding[8]	= {OUTPUT_ENDING_DEFAULT};
+	
+	usart_write_line(USER_RS232, "\r\nInformation:\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "This command loads factory defaults of all luxmeter parameters. Specifically,\r\n");
+	usart_write_line(USER_RS232, "the settings will default to:\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "RS-232 port: ");
+	sprintf(ptemp, "%d", COM_PORT_BAUD_DEFAULT);
+	usart_write_line(USER_RS232, ptemp);
+	usart_write_line(USER_RS232, " baud, RTS/CTS handshaking ");
+	DISP_ON_OFF(COM_PORT_HAND_DEFAULT);
+	usart_write_line(USER_RS232, ".\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Measurement: speed ");
+	sprintf(ptemp, "%d", MEAS_NPLC_DEFAULT);
+	usart_write_line(USER_RS232, ptemp);
+	usart_write_line(USER_RS232, " NPLC, line frequency ");
+	sprintf(ptemp, "%d Hz, rounding ", MEAS_PL_FREQ_DEFAULT);
+	usart_write_line(USER_RS232, ptemp);
+	DISP_ON_OFF(MEAS_ROUNDING_DEFAULT);
+	usart_write_line(USER_RS232, ",\r\nscientific notation ");
+	DISP_ON_OFF(MEAS_SCIENTIFIC_DEFAULT);
+	usart_write_line(USER_RS232, ".\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Channels: all 16 channels ON.\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Output string: Prefix=\"");
+	hexToStringRepresentation(outputPrefix);
+	usart_write_line(USER_RS232, "\", separator is \"");
+	hexToStringRepresentation(outputSeparator);
+	usart_write_line(USER_RS232, "\",\r\n");
+	usart_write_line(USER_RS232, "  suffix is \"");
+	hexToStringRepresentation(outputSuffix);
+	usart_write_line(USER_RS232, "\" and line ending is \"");
+	hexToStringRepresentation(outputLineEnding);
+	usart_write_line(USER_RS232, "\".\r\n\r\n");
+	
+	usart_write_line(USER_RS232, "Usage:\r\n");
+	usart_write_line(USER_RS232, "       defaults <arguments>\r\n\r\n");
+
+	usart_write_line(USER_RS232, "Arguments:\r\n");
+	usart_write_line(USER_RS232, "-s          Suppresses user warning when loading factory defaults. Needed\r\n");
+	usart_write_line(USER_RS232, "            for automated configuration of the luxmeter via batch of commands.\r\n\r\n");
+}
+
+void showDefaultsWarning(void) {
+	char ptemp[50];
+	
+	usart_write_line(USER_RS232, "Warning! The default settings will take effect after you enter \"exit\"\r\n");
+	usart_write_line(USER_RS232, "command. In order to communicate with the luxmeter after that, you will need\r\n");
+	usart_write_line(USER_RS232, "to change your terminal program settings accordingly (");
+	sprintf(ptemp, "%d baud, RTS/CTS\r\n", COM_PORT_BAUD_DEFAULT);
+	usart_write_line(USER_RS232, ptemp);
+	usart_write_line(USER_RS232, "handshaking ");
+	DISP_ON_OFF(COM_PORT_HAND_DEFAULT);
+	usart_write_line(USER_RS232, "). Do you wish to continue? (Y/N)\r\n");
+	//art_write_line(USER_RS232, "--------- --------- --------- --------- --------- --------- --------- --------- ");
 }
 
 void showComportHelp(void) {

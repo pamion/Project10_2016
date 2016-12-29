@@ -26,6 +26,18 @@ void showInfoText(void);
 void showConfigText(void);
 
 /*
+ * /brief Funkce pro zobrazení nápovìdy pøíkazu DEFAULTS
+ *
+ */
+void showDefaultsHelp(void);
+
+/*
+ * /brief Funkce pro zobrazení warování na zmìnu pøi použití pøíkazu DEFAULTS
+ *
+ */
+void showDefaultsWarning(void);
+
+/*
  * /brief Funkce pro zobrazení nápovìdy pøíkazu COMPORT
  *
  */

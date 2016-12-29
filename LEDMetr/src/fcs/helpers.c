@@ -15,6 +15,34 @@
 
 uint16_t mask;
 
+void resetPublicConfig(short restart) {
+	nvram_data_t2 publicConfigDefault = {
+		.comPortBaudrate	=  COM_PORT_BAUD_DEFAULT,
+		.comPortHandshake	=  COM_PORT_HAND_DEFAULT,
+		.reserve1			=  {RESERVE_3B},
+		.measNPLC			=  MEAS_NPLC_DEFAULT,
+		.reserve2			= {RESERVE_3B},
+		.measPowerLineFreq	=  MEAS_PL_FREQ_DEFAULT,
+		.measRounding		=  MEAS_ROUNDING_DEFAULT,
+		.measScientific		=  MEAS_SCIENTIFIC_DEFAULT,
+		.reserved3			=  RESERVE_1B,
+		.channelsToogleMask	=  CHANNELS_MASK_DEFAULT,
+		.reserve4			= {RESERVE_2B},
+		.outputPrefix		= {OUTPUT_PREFIX_DEFAULT},
+		.outputSeparator	= {OUTPUT_SEP_DEFAULT},
+		.outputSuffix		= {OUTPUT_SUF_DEFAULT},
+		.outputLineEnding	= {OUTPUT_ENDING_DEFAULT}
+	};
+	
+	usart_write_line(USER_RS232, "Reseting luxmeter to default configuration...\r\n");
+	flashc_memcpy(&publicConfig, &publicConfigDefault, sizeof(publicConfigDefault), TRUE);
+	if (restart) {
+		usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
+		delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
+		reset_do_soft_reset();
+	}
+}
+
 int channelCount(uint16_t channel) {
 	short count, i;
 	count = 0;
@@ -23,7 +51,6 @@ int channelCount(uint16_t channel) {
 	}
 	return count;
 }
-
 
 int setChannelUp (uint8_t *CurrentChannel)
 {
@@ -35,7 +62,7 @@ int setChannelUp (uint8_t *CurrentChannel)
 		mask = publicConfig.channelsToogleMask;
 		mask = (mask << (*CurrentChannel)) & 0x8000;
 		
-		if ( (*CurrentChannel)==15 ) {
+		if ( (*CurrentChannel)==0 ) {
 			ret = TRUE;
 		}
 		
@@ -164,7 +191,7 @@ short int measTask(void) {
 			if (!timeout--) return 1;
 		} while ( !usart_tx_ready(USER_RS232) );
 		
-		if (Brightness < 0.25){
+		if (Brightness < 0.1){
 			Brightness = 0;
 		}
 		

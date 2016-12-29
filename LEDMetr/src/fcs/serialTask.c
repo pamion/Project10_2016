@@ -579,8 +579,30 @@ void serialTask(void)
 				//End of CHANNELS command
 				
 			} else if CHECK_COMMAND("defaults", 0) {
-				usart_write_line(USER_RS232, "Channels command: Comming soon...\r\n");
-				
+				if (paramsCount == 2) {
+					if CHECK_COMMAND("-s", 1) {
+						resetPublicConfig(TRUE);
+					} else {
+						badArguments = TRUE;
+					}
+				} else if (paramsCount == 1) {
+					showDefaultsWarning();
+					i = UNKNOWN;
+					while (i == UNKNOWN) {
+						if ( bufferIsLineReady(&buffIn) ) {
+							bufferReadWord(&buffIn, &ptemp);
+							if ( (ptemp[0] == 'Y') || (ptemp[0] == 'y') ) {
+								i = TRUE;
+								resetPublicConfig(TRUE);
+							} else if ( (ptemp[0] == 'N') || (ptemp[0] == 'n') ) {
+								i = FALSE;
+								usart_write_line(USER_RS232, "Reset canceled\r\n");
+							}
+						}
+					}
+				} else {
+					badArguments = TRUE;
+				}
 				//End of DEFAULTS command
 				
 			} else if CHECK_COMMAND("help", 0) {

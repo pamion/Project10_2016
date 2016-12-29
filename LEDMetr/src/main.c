@@ -53,6 +53,7 @@ short int enabledChannels;
 volatile int dataReady2send				= FALSE;
 volatile int ChannelSwitchedFlag		= FALSE;	// FALSE - Switching in progress
 													// TRUE  - Channel switching finished
+int resetCounter						= 0;
 
 // To specify we have to print a new time
 volatile int print_sec					= 1;	// used as flag
@@ -113,11 +114,21 @@ int main (void) {
 	
 	while (1) {
 		//Process all data from terminal, if there is any
-		serialTask();				
-
+		serialTask();
+		
 		if (print_sec) {
 			//If 1ms interrupt has been raised
 			print_sec = 0;
+			
+			if ( gpio_pin_is_high(RESET_BTN) ) {
+				resetCounter++;
+			} else {
+				resetCounter = 0;
+			}
+			if (resetCounter == RESET_TIME) {
+				statusMachine = MACHINE_USER_CONFIGURATION;
+				resetPublicConfig(TRUE);
+			}
 			
 			if ( ( statusMachine == MACHINE_MEASURE ) && ( dataReady2send ) ) {
 				//Copy measured data to send buffer
@@ -129,7 +140,7 @@ int main (void) {
 			}
 			
 			if ( (tc_tick == 100) || (tc_tick == 101) ) {
-				gpio_set_gpio_pin(TEST_LED);
+				gpio_set_gpio_pin(LED_PIN);
 			}
 			
 			// Check Analog voltage on control pin for errors during channel switching time
@@ -154,7 +165,7 @@ int main (void) {
 			}
 			
 			if ( sendData == 0 ) {
-				gpio_clr_gpio_pin(TEST_LED);
+				gpio_clr_gpio_pin(LED_PIN);
 				tc_tick = 0;	
 			}
 		}

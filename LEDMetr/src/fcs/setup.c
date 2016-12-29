@@ -163,10 +163,8 @@ void mainInit(void) {
 	tc_write_rc(tc, TC_CHANNEL, (FPBA / 8) / 1000); // Set RC value.
 	
 	tc_configure_interrupts(tc, TC_CHANNEL, &TC_INTERRUPT);
-	
-	//******* USER_LED GPIO SETTINGS *******//
-	gpio_configure_pin(TEST_LED,GPIO_DIR_OUTPUT);
 
+	//******* RS232 Setting *******//
 	static const gpio_map_t RS232_GPIO_MAP =
 	{
 		{USER_RS232_RX_PIN, USER_RS232_RX_FUNCTION},
@@ -175,7 +173,6 @@ void mainInit(void) {
 		{SER_RS232_CTS_PIN, SER_RS232_CTS_FUNCTION}
 	};
 
-	//******* RS232 Setting *******//
 	const usart_options_t RS232_OPTIONS =
 	{
 		.baudrate     = publicConfig.comPortBaudrate, //9600,//19200,//57600,
@@ -226,7 +223,12 @@ void mainInit(void) {
 	/* Enable the ADC channels. */
 	adc_enable(&AVR32_ADC, ADC_ERROR_CHANNEL);
 
-	gpio_set_gpio_pin(TEST_LED);
+	//******* OTHER GPIO SETTINGS *******//
+	gpio_configure_pin(LED_PIN, GPIO_DIR_OUTPUT);
+	gpio_configure_pin(RESET_BTN, GPIO_DIR_INPUT);
+	
+	gpio_disable_pin_pull_up(RESET_BTN);
+	gpio_set_gpio_pin(LED_PIN);
 
 	enable_Multiplexer();
 	enable_AD_spi();

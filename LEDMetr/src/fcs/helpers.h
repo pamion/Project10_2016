@@ -16,12 +16,25 @@ extern volatile int print_sec;
 extern volatile uint16_t AD_Data_Values2Send[16];
 extern double Brightness;
 
+/*
+ * \brief Spoète poèet povolenıch kanálù
+ * 
+ * \param uint16 _t maska kanálù
+ */
 int channelCount(uint16_t channel);
+
+/*
+ * \brief Resetuje veøejnou pamì a pøípadnì restartuje luxmetr
+ * 
+ * \param BOOL zda po resetu pamìt ihned provést restart
+ */
+void resetPublicConfig(short restart);
 
 /*
  * \brief Zvedne èíslo kanálu o 1 nahoru
  * 
  * \param Ukazatel na èíslo kanálu (globální)
+ * \return TRUE kdykoliv jsou namìøeny všechny povolené kanály
  */
 int setChannelUp (uint8_t *CurrentChannel);
 
