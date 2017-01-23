@@ -101,14 +101,19 @@ __attribute__((section (".userpage"))) nvram_data_t2 publicConfig __attribute__ 
 	.outputLineEnding	= {OUTPUT_ENDING_DEFAULT}
 };
 
+/* Variables for saving */
+nvram_data_t1 hiddenConfigNew, hiddenConfig2Save;
+nvram_data_t2 publicConfigNew, publicConfig2Save;
+
 
 int main (void) {
 	short int i;
 	short int sendData = 0;
 	float ErrVoltage  = -1;
-	char ptemp[20];
 	
 	bufferInit(&buffIn, &buffInChar, RS232_BUFF_IN_SIZE);
+	
+	memcpy(&publicConfig2Save, &publicConfig, sizeof(publicConfig));
 
 	mainInit();
 	
@@ -160,7 +165,7 @@ int main (void) {
 				usart_write_line(USER_RS232, publicConfig.outputPrefix);					//Start of line
 				usart_write_line(USER_RS232, "Err01 - check photodiode connections!");
 				usart_write_line(USER_RS232, publicConfig.outputSuffix);					//Print suffix
-				usart_write_line(USER_RS232, publicConfig.outputLineEnding);					//Print End of line
+				usart_write_line(USER_RS232, publicConfig.outputLineEnding);				//Print End of line
 				sendData = 0;
 			}
 			

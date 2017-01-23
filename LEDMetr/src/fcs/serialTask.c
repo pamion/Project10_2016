@@ -26,11 +26,6 @@ static short int badArguments = FALSE;
 static char ptemp[50];					//pomocná promìnná pro výpis
 static short int valOut, channel;
 
-
-/* Variables for saving */
-nvram_data_t1 hiddenConfigNew, hiddenConfig2Save;
-nvram_data_t2 publicConfigNew, publicConfig2Save;
-
 void serialTask(void)
 {
 	
@@ -71,8 +66,8 @@ void serialTask(void)
 			   Two separate instances are needed for algorithm to be capable roll back changes after unsuccesfull command */	
 			memcpy(&hiddenConfigNew, &hiddenConfig, sizeof(hiddenConfig));
 			memcpy(&hiddenConfig2Save, &hiddenConfig, sizeof(hiddenConfig));
-			memcpy(&publicConfigNew, &publicConfig, sizeof(hiddenConfig));
-			memcpy(&publicConfig2Save, &publicConfig, sizeof(hiddenConfig));
+			memcpy(&publicConfigNew, &publicConfig, sizeof(publicConfig));
+			memcpy(&publicConfig2Save, &publicConfig, sizeof(publicConfig));
 			saveComPort = UNKNOWN;
 		} else {
 			recognized = FALSE;
@@ -251,8 +246,7 @@ void serialTask(void)
 						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
 												publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 						usart_write_line(USER_RS232, "\r\n\r\n");
-						measTimeInfo( publicConfig2Save.measNPLC, publicConfig2Save.measPowerLineFreq, hiddenConfig2Save.settlingTime,
-												publicConfig2Save.channelsToogleMask, publicConfig2Save.comPortBaudrate );
+						measTimeInfo( );
 					} else { //when valid arguments
 						publicConfigNew.measNPLC			= publicConfig2Save.measNPLC;
 						publicConfigNew.measPowerLineFreq	= publicConfig2Save.measPowerLineFreq;
@@ -454,8 +448,9 @@ void serialTask(void)
 							
 						usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
 						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
-												publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
+						publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 						usart_write_line(USER_RS232, "\r\n\r\n");
+						measTimeInfo( );
 					} else { 
 						//Revert all changes, when ANY problem with line occurs
 						memcpy(&publicConfigNew.outputPrefix,		&publicConfig2Save.outputPrefix,	 sizeof(publicConfigNew.outputPrefix));
@@ -569,6 +564,11 @@ void serialTask(void)
 					if (badArguments == FALSE) {
 						//Apply all changes, when NO problem with line occurs
 						publicConfig2Save.channelsToogleMask	= publicConfigNew.channelsToogleMask;
+						usart_write_line(USER_RS232, "The results will be sent out via RS-232 port in format:\r\n");
+						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
+						publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
+						usart_write_line(USER_RS232, "\r\n\r\n");
+						measTimeInfo( );
 					} else { 
 						//Revert all changes, when ANY problem with line occurs
 						publicConfigNew.channelsToogleMask		= publicConfig2Save.channelsToogleMask;						
@@ -639,12 +639,12 @@ void serialTask(void)
 				
 				//End of EXPCONF command
 					
-			} else if CHECK_COMMAND("discart", 0) {
-				usart_write_line(USER_RS232, "Discarting changes...\r\n");
+			} else if CHECK_COMMAND("discard", 0) {
+				usart_write_line(USER_RS232, "Discarding changes...\r\n");
 				usart_write_line(USER_RS232, "Restarting the luxmeter...\r\n\r\n");
 				delay_ms(50); // Èekání, než se odešle celý øetìzec, na konci programu èekací smyèka nièemu nevadí...
 				reset_do_soft_reset();
-				// END of DISCART command
+				// END of DISCARD command
 			
 			} else if ( CHECK_COMMAND("exit", 0) || CHECK_COMMAND("end", 0) || CHECK_COMMAND("save", 0) ) {
 				usart_write_line(USER_RS232, "Saving changes...\r\n");
@@ -783,7 +783,7 @@ void serialTask(void)
 		
 		// Argument nerozpoznán - bìhem konfigurace - nepøišel znak enter
 		if ( (badArguments == TRUE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
-			usart_write_line(USER_RS232, "Error: Bad argument, all changes from previous line reverted.\r\n");
+			usart_write_line(USER_RS232, "Error: Bad argument.\r\n");
 			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG
 			usart_write_line(USER_RS232, "\r\nDebug info: \r\n");

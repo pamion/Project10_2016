@@ -29,30 +29,30 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, ptemp);
 	
 	usart_write_line(USER_RS232, "\r\nRS-232 port settings: ");
-	sprintf(ptemp, "%d", publicConfig.comPortBaudrate);
+	sprintf(ptemp, "%d", publicConfig2Save.comPortBaudrate);
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " baud, RTS/CTS handshaking ");
-	DISP_ON_OFF(publicConfig.comPortHandshake);
+	DISP_ON_OFF(publicConfig2Save.comPortHandshake);
 	usart_write_line(USER_RS232, ".\r\n");
 	
 	usart_write_line(USER_RS232, "\r\nMeasurement settings: speed ");
-	sprintf(ptemp, "%d", publicConfig.measNPLC);
+	sprintf(ptemp, "%d", publicConfig2Save.measNPLC);
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " NPLC, line frequency ");
-	sprintf(ptemp, "%d", publicConfig.measPowerLineFreq);
+	sprintf(ptemp, "%d", publicConfig2Save.measPowerLineFreq);
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " Hz, rounding ");
-	DISP_ON_OFF(publicConfig.measRounding);
+	DISP_ON_OFF(publicConfig2Save.measRounding);
 	usart_write_line(USER_RS232, ",\r\nscientific notation ");
-	DISP_ON_OFF(publicConfig.measScientific);
+	DISP_ON_OFF(publicConfig2Save.measScientific);
 	usart_write_line(USER_RS232, ".\r\n");
 	
 	usart_write_line(USER_RS232, "\r\nChannel status (");
-	sprintf(ptemp, "%d", channelCount(publicConfig.channelsToogleMask));
+	sprintf(ptemp, "%d", channelCount(publicConfig2Save.channelsToogleMask));
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " channels are ON):\r\n");
 	
-	aux = publicConfig.channelsToogleMask;
+	aux = publicConfig2Save.channelsToogleMask;
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n");
 	for (i = 0; i < 8; i++ ) {
 		sprintf(ptemp, "| Ch%02d ", i+1);
@@ -85,21 +85,21 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, "+------+------+------+------+------+------+------+------+\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "Output string settings: Prefix=\"");
-	hexToStringRepresentation(publicConfig.outputPrefix);
+	hexToStringRepresentation(publicConfig2Save.outputPrefix);
 	usart_write_line(USER_RS232, "\", separator is \"");
-	hexToStringRepresentation(publicConfig.outputSeparator);
+	hexToStringRepresentation(publicConfig2Save.outputSeparator);
 	usart_write_line(USER_RS232, "\",\r\n");
 	usart_write_line(USER_RS232, "  suffix is \"");
-	hexToStringRepresentation(publicConfig.outputSuffix);
+	hexToStringRepresentation(publicConfig2Save.outputSuffix);
 	usart_write_line(USER_RS232, "\" and line ending is \"");
-	hexToStringRepresentation(publicConfig.outputLineEnding);
+	hexToStringRepresentation(publicConfig2Save.outputLineEnding);
 	usart_write_line(USER_RS232, "\".\r\n");
 	
 	usart_write_line(USER_RS232, "Example:\r\n");
-	outputStringExample( publicConfig.outputPrefix, publicConfig.outputSeparator, publicConfig.outputSuffix, publicConfig.outputLineEnding, publicConfig.measRounding, publicConfig.measScientific );
+	outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix, publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 	usart_write_line(USER_RS232, "\r\n\r\n");
 
-	measTimeInfo( publicConfig.measNPLC, publicConfig.measPowerLineFreq, hiddenConfig.settlingTime, publicConfig.channelsToogleMask, publicConfig.comPortBaudrate );
+	measTimeInfo( );
 }
 
 void showConfigText(void) {
@@ -113,7 +113,7 @@ void showConfigText(void) {
 	usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 	usart_write_line(USER_RS232, "Enter \"help (command)\" to get available attributes of a command.\r\n");
 	usart_write_line(USER_RS232, "Use \"exit\" to save configuration, exit from this menu and resume measurement.\r\n\r\n");
-	usart_write_line(USER_RS232, "Use \"discart\" to discart all changes, exit from this menu and resume measurement.\r\n\r\n");
+	usart_write_line(USER_RS232, "Use \"discard\" to discard all changes, exit from this menu and resume measurement.\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "For quick configuration, you can use a batch of commands in the format:\r\n\r\n");
 	
@@ -518,25 +518,25 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 	hexToStringRepresentation(le);
 }
 
-void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint16_t toogleMask, uint16_t baudRate ) {
+void measTimeInfo( void ) {
 	char ptemp[60];
 	int cycle, allCycle, sendTime, charsPerMsg;
 	
-	cycle = ( 1000.0 * NPLC / PLFreq + settlingTime );
-	allCycle = channelCount(toogleMask) * cycle;
+	cycle = ( 1000.0 * publicConfig2Save.measNPLC / publicConfig2Save.measPowerLineFreq + hiddenConfig2Save.settlingTime );
+	allCycle = channelCount(publicConfig2Save.channelsToogleMask) * cycle;
 	
 	//count msg
-	if ( publicConfig.measScientific == 1 ) {
+	if ( publicConfig2Save.measScientific == 1 ) {
 		charsPerMsg = CHARS_PER_SC_NUMBER;
-	} else if ( publicConfig.measRounding == 1 ) {
+	} else if ( publicConfig2Save.measRounding == 1 ) {
 		charsPerMsg = CHARS_PER_RN_NUMBER;
 	} else {
 		charsPerMsg = CHARS_PER_NORM_NUMBER;
 	}
-	charsPerMsg = 15*strlen(publicConfig.outputSeparator) + 16*charsPerMsg;
-	charsPerMsg += strlen(publicConfig.outputPrefix) + strlen(publicConfig.outputSuffix) + strlen(publicConfig.outputLineEnding);
+	charsPerMsg = 15*strlen(publicConfig2Save.outputSeparator) + 16*charsPerMsg;
+	charsPerMsg += strlen(publicConfig2Save.outputPrefix) + strlen(publicConfig2Save.outputSuffix) + strlen(publicConfig2Save.outputLineEnding);
 	
-	sendTime = ( 1000.0 * charsPerMsg * 10 / baudRate );
+	sendTime = ( 1000.0 * charsPerMsg * 10 / publicConfig2Save.comPortBaudrate );
 
 	usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
 	sprintf(ptemp, "%d ms\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
@@ -547,8 +547,8 @@ void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint
 	usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
 
 	if ( allCycle < sendTime ) {
-		usart_write_line(USER_RS232, "\r\n\r\nERR: It looks like your data cannot be send in time before new data will arrive.\r\n");
-		usart_write_line(USER_RS232, "Please slow down your measurement or use quicker serial line.\r\n\r\n\r\n\r\n");
+		usart_write_line(USER_RS232, "\r\nError: It looks like your data cannot be send in time before new data will\r\n");
+		usart_write_line(USER_RS232, "arrive. Please slow down your measurement or use quicker serial line.\r\n");
 	}
 }
 

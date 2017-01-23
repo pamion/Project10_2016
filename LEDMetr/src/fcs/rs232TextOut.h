@@ -11,7 +11,9 @@
 #define RS232TEXTOUT_H_
 
 extern nvram_data_t1 hiddenConfig;
+extern nvram_data_t1 hiddenConfig2Save;
 extern nvram_data_t2 publicConfig;
+extern nvram_data_t2 publicConfig2Save;
 
 /*
  * /brief Funkce pro zobrazení textù vyvolaných pøi zavolání pøíkazu INFO
@@ -83,6 +85,6 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
  * /brief Vypsání odhadu èasu mìøení
  *
  */
-void measTimeInfo( short int NPLC, short int PLFreq, uint16_t settlingTime, uint16_t toogleMask, uint16_t baudRate );
+void measTimeInfo( void );
 
 #endif /* RS232TEXTOUT_H_ */
