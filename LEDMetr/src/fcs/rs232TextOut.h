@@ -16,6 +16,18 @@ extern nvram_data_t2 publicConfig;
 extern nvram_data_t2 publicConfig2Save;
 
 /*
+ * /brief Funkce pro zobrazení textù vyvolaných pøi zavolání pøíkazu EXPCONF
+ *
+ */
+void showExpConfHelp(void);
+
+/*
+ * /brief Funkce pro zobrazení textù vyvolaných pøi zavolání pøíkazu HELP
+ *
+ */
+void showHelpHelp(void);
+
+/*
  * /brief Funkce pro zobrazení textù vyvolaných pøi zavolání pøíkazu INFO
  *
  */

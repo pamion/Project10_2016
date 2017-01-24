@@ -48,7 +48,32 @@ void serialTask(void)
 		
 		//Vykonání základních pøíkazù
 		if CHECK_COMMAND("help", 0) {
-			usart_write_line(USER_RS232, "Showing help\r\n");
+			
+			if (paramsCount == 2) {
+				if CHECK_COMMAND("help", 1) {
+					showHelpHelp();
+				} else if CHECK_COMMAND("comport", 1) {
+					showComportHelp();
+				} else if CHECK_COMMAND("meas", 1) {
+					showMeasHelp();
+				} else if CHECK_COMMAND("channels", 1) {
+					showChannelsHelp();
+				} else if CHECK_COMMAND("output", 1) {
+					showOutputHelp();
+				} else if CHECK_COMMAND("info", 1) {
+					showInfoText();
+				} else if CHECK_COMMAND("expconf", 1) {
+					showExpConfHelp();
+				} else if CHECK_COMMAND("defaults", 1) {
+					showDefaultsHelp();
+				} else {
+					showHelpHelp();
+				}
+
+			} else { // if only name of command arrived
+				showHelpHelp();
+			}
+			//End of HELP command
 
 		} else if CHECK_COMMAND("info", 0) {
 			showInfoText();
@@ -605,8 +630,8 @@ void serialTask(void)
 				}
 				//End of DEFAULTS command
 				
-			} else if CHECK_COMMAND("help", 0) {
-				usart_write_line(USER_RS232, "Help command: Comming soon...\r\n");
+			} else if CHECK_COMMAND("expconf", 0) {
+				usart_write_line(USER_RS232, "Expconf command: Comming soon...\r\n");
 /*
 				if (paramsCount != 1) {
 					i = 1;
@@ -632,11 +657,6 @@ void serialTask(void)
 					} else { // if only name of command arrived
 						showMeasHelp();
 				}	*/			
-				//End of HELP command
-			
-			} else if CHECK_COMMAND("expconf", 0) {
-				usart_write_line(USER_RS232, "Expconf command: Comming soon...\r\n");
-				
 				//End of EXPCONF command
 					
 			} else if CHECK_COMMAND("discard", 0) {
