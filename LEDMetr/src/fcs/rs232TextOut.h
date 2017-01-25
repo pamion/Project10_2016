@@ -82,6 +82,12 @@ void showOutputHelp(void);
 void showChannelsHelp(void);
 
 /*
+ * /brief Funkce pro export konfigurace do dávky
+ *
+ */
+void exportConfiguration(void);
+
+/*
  * /brief Funkce pro zobrazení stringù obsahující netisknutelné znaky
  *
  */

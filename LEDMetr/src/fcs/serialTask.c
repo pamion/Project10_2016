@@ -631,33 +631,7 @@ void serialTask(void)
 				//End of DEFAULTS command
 				
 			} else if CHECK_COMMAND("expconf", 0) {
-				usart_write_line(USER_RS232, "Expconf command: Comming soon...\r\n");
-/*
-				if (paramsCount != 1) {
-					i = 1;
-					while ( (i < paramsCount) && (badArguments == FALSE) ) {
-						if CHECK_COMMAND("-xxxx", i) {
-							//do anything
-							//end if "-xxx"
-							
-						} else {
-							i = paramsCount;
-							badArguments = TRUE;
-						}
-						i++;
-						/* end-while trough params */
-/*					}
-						if (badArguments == FALSE) {
-							//Apply all changes, when NO problem with line occurs
-							publicConfig2Save.measNPLC			= publicConfigNew.measNPLC;
-						} else { 
-							//Revert all changes, when ANY problem with line occurs
-							publicConfigNew.measNPLC			= publicConfig2Save.measNPLC;						
-						}
-					} else { // if only name of command arrived
-						showMeasHelp();
-				}	*/			
-				//End of EXPCONF command
+				exportConfiguration();
 					
 			} else if CHECK_COMMAND("discard", 0) {
 				usart_write_line(USER_RS232, "Discarding changes...\r\n");

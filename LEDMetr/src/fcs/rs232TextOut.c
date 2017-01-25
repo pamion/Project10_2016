@@ -432,6 +432,93 @@ void showChannelsHelp(void) {
 	usart_write_line(USER_RS232, "           as in example above, but using channel mask.\r\n");
 }
 
+void exportConfiguration(void) {
+	char ptemp[20];
+	uint16_t mask;
+	short i;
+	
+	usart_write_line(USER_RS232, "\r\nconfig");
+	
+	/* COMPORT */
+	usart_write_line(USER_RS232, "\r\ncomport -s -b ");
+	sprintf(ptemp, "%d", publicConfig2Save.comPortBaudrate);
+	usart_write_line(USER_RS232, ptemp); //number
+	usart_write_line(USER_RS232, " -h ");
+	if (publicConfig2Save.comPortHandshake == 1) {
+		usart_write_line(USER_RS232, "on");
+	} else {
+		usart_write_line(USER_RS232, "off");
+	}
+	
+	/* MEAS */
+	usart_write_line(USER_RS232, "\r\nmeas -t ");
+	sprintf(ptemp, "%d", publicConfig2Save.measNPLC);
+	usart_write_line(USER_RS232, ptemp); //number
+	usart_write_line(USER_RS232, " -lf ");
+	sprintf(ptemp, "%d", publicConfig2Save.measPowerLineFreq);
+	usart_write_line(USER_RS232, ptemp); //number
+	usart_write_line(USER_RS232, " -rn ");
+	if (publicConfig2Save.measRounding == 1) {
+		usart_write_line(USER_RS232, "on");
+	} else {
+		usart_write_line(USER_RS232, "off");
+	}
+	usart_write_line(USER_RS232, " -sc ");
+	if (publicConfig2Save.measScientific == 1) {
+		usart_write_line(USER_RS232, "on");
+	} else {
+		usart_write_line(USER_RS232, "off");
+	}
+	
+	/* CHANNELS */
+	usart_write_line(USER_RS232, "\r\nchannels -cm ");
+	for (i=15; i>=0; i--) {
+		mask = publicConfig2Save.channelsToogleMask;
+		mask = mask >> i;
+		sprintf(ptemp, "%d", (mask & 0x0001));
+		usart_write_line(USER_RS232, ptemp); //mask bit
+	}
+	
+	/* OUTPUT PREFIX */
+	usart_write_line(USER_RS232, "\r\noutput -pa ");
+	i=0;
+	while ( (publicConfig2Save.outputPrefix[i] != NULL) && (i < 8) ) {
+		sprintf(ptemp, "%02X", publicConfig2Save.outputPrefix[i]);
+		usart_write_line(USER_RS232, ptemp); //HEX represented string
+		i++;
+	}
+	
+	/* OUTPUT SEPARATOR */
+	usart_write_line(USER_RS232, "\r\noutput -sa ");
+	i=0;
+	while ( (publicConfig2Save.outputSeparator[i] != NULL) && (i < 8) ) {
+		sprintf(ptemp, "%02X", publicConfig2Save.outputSeparator[i]);
+		usart_write_line(USER_RS232, ptemp); //HEX represented string
+		i++;
+	}
+	
+	/* OUTPUT SUFFIX */
+	usart_write_line(USER_RS232, "\r\noutput -ua ");
+	i=0;
+	while ( (publicConfig2Save.outputSuffix[i] != NULL) && (i < 8) ) {
+		sprintf(ptemp, "%02X", publicConfig2Save.outputSuffix[i]);
+		usart_write_line(USER_RS232, ptemp); //HEX represented string
+		i++;
+	}
+	
+	/* OUTPUT LINE ENDING */
+	usart_write_line(USER_RS232, "\r\noutput -la ");
+	i=0;
+	while ( (publicConfig2Save.outputLineEnding[i] != NULL) && (i < 8) ) {
+		sprintf(ptemp, "%02X", publicConfig2Save.outputLineEnding[i]);
+		usart_write_line(USER_RS232, ptemp); //HEX represented string
+		i++;
+	}
+	
+	/* EXIT */
+	usart_write_line(USER_RS232, "\r\nexit\r\n");
+}
+
 void hexToStringRepresentation(char *input ) {
 	int i = 0;
 	
