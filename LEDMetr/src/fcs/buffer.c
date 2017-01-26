@@ -48,9 +48,10 @@ int bufferWriteChar (struct T_buffer *buff, char *c) {
 	buff->data[buff->pozWrite] = c;
 	
 	/* End of the line */
+	prevPoz = bufferPrevPosition(buff, buff->pozWrite);
 	if ( (c=='\r') || (c=='\n') ) {
 		/* CRLF or LFCR handling only as one line ending */
-		prevPoz = bufferPrevPosition(buff, buff->pozWrite);
+		
 		if ( ( (buff->data[prevPoz]=='\r') || (buff->data[prevPoz]=='\n') ) && (buff->data[prevPoz]!=c) ) {
 			buff->usedSpace--;
 			buff->linesCount--;
@@ -59,9 +60,15 @@ int bufferWriteChar (struct T_buffer *buff, char *c) {
 		buff->linesCount++;
 	}
 	
-	/* increment counters */
-	buff->usedSpace++;
-	buff->pozWrite = bufferNextPosition(buff, buff->pozWrite);	
+	/* deals with space-space or space-newline situations */
+	if ( ( (buff->data[buff->pozWrite] == '\r') || (buff->data[buff->pozWrite] == '\n') || (buff->data[buff->pozWrite] == ' ') ) && (buff->data[prevPoz] == ' ') ) {
+		buff->data[prevPoz] = c;
+	} else if (!( ( (buff->data[prevPoz] == '\r') || (buff->data[prevPoz] == '\n')) && (buff->data[buff->pozWrite] == ' ') )) { // for spaces at the beginning of the line
+		/* increment counters */
+		buff->usedSpace++;
+		buff->pozWrite = bufferNextPosition(buff, buff->pozWrite);
+	}
+	
 	return BUFFER_SUCCESS;
 }
 

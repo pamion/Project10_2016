@@ -41,7 +41,7 @@ void showHelpHelp(void) {
 	usart_write_line(USER_RS232, "  expconf   Exports a configuration batch which can be used to easily\r\n");
 	usart_write_line(USER_RS232, "                transfer the configuration to other LXM-16 luxmeters.\r\n");
 	usart_write_line(USER_RS232, "  defaults  Loads factory defaults of all luxmeter settings.\r\n");
-	usart_write_line(USER_RS232, "  discard   Exits configuration mode and discard all changes.\r\n");
+	usart_write_line(USER_RS232, "  discard   Discards all changes and ends configuration mode.\r\n");
 	usart_write_line(USER_RS232, "  exit      Exits configuration mode and restarts the luxmeter with new\r\n");
 	usart_write_line(USER_RS232, "                settings.\r\n\r\n");
 	
@@ -683,8 +683,9 @@ void measTimeInfo( void ) {
 	usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
 
 	if ( allCycle < sendTime ) {
-		usart_write_line(USER_RS232, "\r\nError: It looks like your data cannot be send in time before new data will\r\n");
-		usart_write_line(USER_RS232, "arrive. Please slow down your measurement or use quicker serial line.\r\n");
+		usart_write_line(USER_RS232, "\r\nError: Measurement cycle is shorter than transmission speed of RS-232 port.\r\n");
+		usart_write_line(USER_RS232, "Please decrease measurement speed (meas command), shorten the output string\r\n");
+		usart_write_line(USER_RS232, "(output command) or increase RS-232 baud rate (comport command).\r\n");
 	}
 }
 
