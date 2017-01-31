@@ -175,6 +175,7 @@ void serialTask(void)
 						if (saveComPort == TRUE) {
 							publicConfig2Save.comPortBaudrate = publicConfigNew.comPortBaudrate;
 							publicConfig2Save.comPortHandshake = publicConfigNew.comPortHandshake;
+							measTimeInfo(TRUE);
 						}	
 					} else {
 						publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
@@ -271,7 +272,7 @@ void serialTask(void)
 						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
 												publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 						usart_write_line(USER_RS232, "\r\n\r\n");
-						measTimeInfo( );
+						measTimeInfo( FALSE );
 					} else { //when valid arguments
 						publicConfigNew.measNPLC			= publicConfig2Save.measNPLC;
 						publicConfigNew.measPowerLineFreq	= publicConfig2Save.measPowerLineFreq;
@@ -475,7 +476,7 @@ void serialTask(void)
 						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
 						publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 						usart_write_line(USER_RS232, "\r\n\r\n");
-						measTimeInfo( );
+						measTimeInfo( FALSE );
 					} else { 
 						//Revert all changes, when ANY problem with line occurs
 						memcpy(&publicConfigNew.outputPrefix,		&publicConfig2Save.outputPrefix,	 sizeof(publicConfigNew.outputPrefix));
@@ -593,7 +594,7 @@ void serialTask(void)
 						outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix,
 						publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 						usart_write_line(USER_RS232, "\r\n\r\n");
-						measTimeInfo( );
+						measTimeInfo( FALSE );
 					} else { 
 						//Revert all changes, when ANY problem with line occurs
 						publicConfigNew.channelsToogleMask		= publicConfig2Save.channelsToogleMask;						

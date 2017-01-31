@@ -147,7 +147,7 @@ void showInfoText(void) {
 	outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix, publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
 	usart_write_line(USER_RS232, "\r\n\r\n");
 
-	measTimeInfo( );
+	measTimeInfo( FALSE );
 }
 
 void showConfigText(void) {
@@ -256,7 +256,7 @@ void showComportHelp(void) {
 	usart_write_line(USER_RS232, "       comport <arguments>\r\n\r\n");
 
 	usart_write_line(USER_RS232, "Arguments:\r\n");
-	usart_write_line(USER_RS232, "  -b (value   Sets port baud rate. Can be set between 1200 and 115200 baud,\r\n");
+	usart_write_line(USER_RS232, "  -b (value)  Sets port baud rate. Can be set between 1200 and 115200 baud,\r\n");
 	usart_write_line(USER_RS232, "              recommended values are 1200, 2400, 4800, 9600, 14400, 19200\r\n");
 	usart_write_line(USER_RS232, "              (default setting), 28800, 38400, 57600 or 115200 baud.\r\n");
 	usart_write_line(USER_RS232, "  -h (value)  Enables or disables hardware handshaking (RTS/CTS).\r\n");
@@ -654,7 +654,7 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 	hexToStringRepresentation(le);
 }
 
-void measTimeInfo( void ) {
+void measTimeInfo( short onError ) {
 	char ptemp[60];
 	int cycle, allCycle, sendTime, charsPerMsg;
 	
@@ -674,19 +674,23 @@ void measTimeInfo( void ) {
 	
 	sendTime = ( 1000.0 * charsPerMsg * 10 / publicConfig2Save.comPortBaudrate );
 
-	usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
-	sprintf(ptemp, "%d ms\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
-	usart_write_line(USER_RS232, ptemp);
+	if ((onError == FALSE) || ( allCycle < sendTime ) ) {
+		usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
+		sprintf(ptemp, "%d ms\r\n  (%d ms per channel).\r\n\r\n", allCycle, cycle);
+		usart_write_line(USER_RS232, ptemp);
 
-	sprintf(ptemp, "It takes about %d ms ", sendTime );
-	usart_write_line(USER_RS232, ptemp);
-	usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
+		sprintf(ptemp, "It takes about %d ms ", sendTime );
+		usart_write_line(USER_RS232, ptemp);
+		usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
 
-	if ( allCycle < sendTime ) {
-		usart_write_line(USER_RS232, "\r\nError: Measurement cycle is shorter than transmission speed of RS-232 port.\r\n");
-		usart_write_line(USER_RS232, "Please decrease measurement speed (meas command), shorten the output string\r\n");
-		usart_write_line(USER_RS232, "(output command) or increase RS-232 baud rate (comport command).\r\n");
+		if ( allCycle < sendTime ) {
+			usart_write_line(USER_RS232, "\r\nError: Measurement cycle is shorter than transmission speed of RS-232 port.\r\n");
+			usart_write_line(USER_RS232, "Please decrease measurement speed (meas command), shorten the output string\r\n");
+			usart_write_line(USER_RS232, "(output command) or increase RS-232 baud rate (comport command).\r\n");
+		}	
 	}
+
+
 }
 
 

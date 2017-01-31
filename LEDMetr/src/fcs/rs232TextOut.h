@@ -103,6 +103,6 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
  * /brief Vypsání odhadu èasu mìøení
  *
  */
-void measTimeInfo( void );
+void measTimeInfo( short onError );
 
 #endif /* RS232TEXTOUT_H_ */
