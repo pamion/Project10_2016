@@ -113,8 +113,14 @@ void serialTask(void)
 							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
 								publicConfigNew.comPortBaudrate = atoi(subBuff[i + 1]);
 								if ( (publicConfigNew.comPortBaudrate >= 1200) & (publicConfigNew.comPortBaudrate <= 115200) ) {
-									sprintf(ptemp, "->New baud rate will be %ld\r\n", publicConfigNew.comPortBaudrate);
-									usart_write_line(USER_RS232, ptemp);
+									
+									if (measTimeInfo(TRUE) == TRUE) {
+										sprintf(ptemp, "->New baud rate will be %ld\r\n", publicConfigNew.comPortBaudrate);
+										usart_write_line(USER_RS232, ptemp);
+									} else {
+										badArguments = INVALID;
+									}
+									
 									i++;
 								} else {
 									publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
@@ -175,7 +181,6 @@ void serialTask(void)
 						if (saveComPort == TRUE) {
 							publicConfig2Save.comPortBaudrate = publicConfigNew.comPortBaudrate;
 							publicConfig2Save.comPortHandshake = publicConfigNew.comPortHandshake;
-							measTimeInfo(TRUE);
 						}	
 					} else {
 						publicConfigNew.comPortBaudrate = publicConfig2Save.comPortBaudrate;
@@ -622,7 +627,7 @@ void serialTask(void)
 								resetPublicConfig(TRUE);
 							} else if ( (ptemp[0] == 'N') || (ptemp[0] == 'n') ) {
 								i = FALSE;
-								usart_write_line(USER_RS232, "Reset canceled\r\n");
+								usart_write_line(USER_RS232, "Luxmeter reset canceled\r\n");
 							}
 						}
 					}

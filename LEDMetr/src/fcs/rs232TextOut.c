@@ -132,16 +132,16 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, "|\r\n");
 	usart_write_line(USER_RS232, "  +------+------+------+------+------+------+------+------+\r\n\r\n");
 	
-	usart_write_line(USER_RS232, "Output string settings: Prefix=\"");
+	usart_write_line(USER_RS232, "Output string settings: Prefix is ");
 	hexToStringRepresentation(publicConfig2Save.outputPrefix);
-	usart_write_line(USER_RS232, "\", separator is \"");
+	usart_write_line(USER_RS232, " separator is ");
 	hexToStringRepresentation(publicConfig2Save.outputSeparator);
-	usart_write_line(USER_RS232, "\",\r\n");
-	usart_write_line(USER_RS232, "  suffix is \"");
+	usart_write_line(USER_RS232, "\r\n");
+	usart_write_line(USER_RS232, "  suffix is ");
 	hexToStringRepresentation(publicConfig2Save.outputSuffix);
-	usart_write_line(USER_RS232, "\" and line ending is \"");
+	usart_write_line(USER_RS232, " and line ending is ");
 	hexToStringRepresentation(publicConfig2Save.outputLineEnding);
-	usart_write_line(USER_RS232, "\".\r\n\r\n");
+	usart_write_line(USER_RS232, ".\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "Example:\r\n  ");
 	outputStringExample( publicConfig2Save.outputPrefix, publicConfig2Save.outputSeparator, publicConfig2Save.outputSuffix, publicConfig2Save.outputLineEnding, publicConfig2Save.measRounding, publicConfig2Save.measScientific );
@@ -210,16 +210,16 @@ void showDefaultsHelp(void) {
 	
 	usart_write_line(USER_RS232, "  Channels: all 16 channels ON.\r\n\r\n");
 	
-	usart_write_line(USER_RS232, "  Output string: Prefix=\"");
+	usart_write_line(USER_RS232, "  Output string: Prefix is ");
 	hexToStringRepresentation(outputPrefix);
-	usart_write_line(USER_RS232, "\", separator is \"");
+	usart_write_line(USER_RS232, " separator is ");
 	hexToStringRepresentation(outputSeparator);
-	usart_write_line(USER_RS232, "\",\r\n");
-	usart_write_line(USER_RS232, "    suffix is \"");
+	usart_write_line(USER_RS232, "\r\n");
+	usart_write_line(USER_RS232, "    suffix is ");
 	hexToStringRepresentation(outputSuffix);
-	usart_write_line(USER_RS232, "\" and line ending is \"");
+	usart_write_line(USER_RS232, " and line ending is ");
 	hexToStringRepresentation(outputLineEnding);
-	usart_write_line(USER_RS232, "\".\r\n\r\n");
+	usart_write_line(USER_RS232, ".\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "Usage:\r\n");
 	usart_write_line(USER_RS232, "       defaults <arguments>\r\n\r\n");
@@ -232,14 +232,13 @@ void showDefaultsHelp(void) {
 void showDefaultsWarning(void) {
 	char ptemp[50];
 	
-	usart_write_line(USER_RS232, "Warning! The default settings will take effect after you enter \"exit\"\r\n");
-	usart_write_line(USER_RS232, "command. In order to communicate with the luxmeter after that, you will need\r\n");
-	usart_write_line(USER_RS232, "to change your terminal program settings accordingly (");
-	sprintf(ptemp, "%d baud, RTS/CTS\r\n", COM_PORT_BAUD_DEFAULT);
+	usart_write_line(USER_RS232, "Warning! Loading the default settings also overwrites RS-232 port settings.\r\n");
+	usart_write_line(USER_RS232, "In order to communicate with the luxmeter again, you may need to configure\r\n");
+	usart_write_line(USER_RS232, "your terminal program accordingly (");
+	sprintf(ptemp, "%d baud, RTS/CTS handshaking ", COM_PORT_BAUD_DEFAULT);
 	usart_write_line(USER_RS232, ptemp);
-	usart_write_line(USER_RS232, "handshaking ");
 	DISP_ON_OFF(COM_PORT_HAND_DEFAULT);
-	usart_write_line(USER_RS232, "). Do you wish to continue? (Y/N)\r\n");
+	usart_write_line(USER_RS232, ").\r\nDo you wish to continue? (Y/N)\r\n");
 	//art_write_line(USER_RS232, "--------- --------- --------- --------- --------- --------- --------- --------- ");
 }
 
@@ -489,7 +488,7 @@ void exportConfiguration(void) {
 	}
 	
 	/* OUTPUT SEPARATOR */
-	usart_write_line(USER_RS232, "\r\noutput -sa ");
+	usart_write_line(USER_RS232, " -sa ");
 	i=0;
 	while ( (publicConfig2Save.outputSeparator[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputSeparator[i]);
@@ -498,7 +497,7 @@ void exportConfiguration(void) {
 	}
 	
 	/* OUTPUT SUFFIX */
-	usart_write_line(USER_RS232, "\r\noutput -ua ");
+	usart_write_line(USER_RS232, " -ua ");
 	i=0;
 	while ( (publicConfig2Save.outputSuffix[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputSuffix[i]);
@@ -507,7 +506,7 @@ void exportConfiguration(void) {
 	}
 	
 	/* OUTPUT LINE ENDING */
-	usart_write_line(USER_RS232, "\r\noutput -la ");
+	usart_write_line(USER_RS232, " -la ");
 	i=0;
 	while ( (publicConfig2Save.outputLineEnding[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputLineEnding[i]);
@@ -627,6 +626,10 @@ void hexToStringRepresentation(char *input ) {
 		}
 		i++;
 	}
+	
+	if (i == 0)	{
+		usart_write_line(USER_RS232, "<None>");
+	}
 }
 
 void outputStringExample( char *pre, char *se, char *su, char *le, short int rn, short int sc ) {
@@ -654,25 +657,31 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 	hexToStringRepresentation(le);
 }
 
-void measTimeInfo( short onError ) {
+bool measTimeInfo( short onError ) {
 	char ptemp[60];
 	int cycle, allCycle, sendTime, charsPerMsg;
 	
-	cycle = ( 1000.0 * publicConfig2Save.measNPLC / publicConfig2Save.measPowerLineFreq + hiddenConfig2Save.settlingTime );
-	allCycle = channelCount(publicConfig2Save.channelsToogleMask) * cycle;
+	cycle = ( 1000.0 * publicConfigNew.measNPLC / publicConfigNew.measPowerLineFreq + hiddenConfigNew.settlingTime );
+	allCycle = channelCount(publicConfigNew.channelsToogleMask) * cycle;
 	
 	//count msg
-	if ( publicConfig2Save.measScientific == 1 ) {
+	if ( publicConfigNew.measScientific == 1 ) {
 		charsPerMsg = CHARS_PER_SC_NUMBER;
-	} else if ( publicConfig2Save.measRounding == 1 ) {
+	} else if ( publicConfigNew.measRounding == 1 ) {
 		charsPerMsg = CHARS_PER_RN_NUMBER;
 	} else {
 		charsPerMsg = CHARS_PER_NORM_NUMBER;
 	}
-	charsPerMsg = 15*strlen(publicConfig2Save.outputSeparator) + 16*charsPerMsg;
-	charsPerMsg += strlen(publicConfig2Save.outputPrefix) + strlen(publicConfig2Save.outputSuffix) + strlen(publicConfig2Save.outputLineEnding);
+	charsPerMsg = 15*strlen(publicConfigNew.outputSeparator) + 16*charsPerMsg;
+	charsPerMsg += strlen(publicConfigNew.outputPrefix) + strlen(publicConfigNew.outputSuffix) + strlen(publicConfigNew.outputLineEnding);
 	
-	sendTime = ( 1000.0 * charsPerMsg * 10 / publicConfig2Save.comPortBaudrate );
+	sendTime = ( 1000.0 * charsPerMsg * 10 / publicConfigNew.comPortBaudrate );
+
+	if ( allCycle < sendTime ) {
+		usart_write_line(USER_RS232, "\r\nError: Measurement cycle is shorter than transmission speed of RS-232 port.\r\n");
+		usart_write_line(USER_RS232, "Please decrease measurement speed (meas command), shorten the output string\r\n");
+		usart_write_line(USER_RS232, "(output command) or increase RS-232 baud rate (comport command).\r\n\r\n");
+	}
 
 	if ((onError == FALSE) || ( allCycle < sendTime ) ) {
 		usart_write_line(USER_RS232, "With these settings, one measurement cycle takes approximately ");
@@ -682,14 +691,13 @@ void measTimeInfo( short onError ) {
 		sprintf(ptemp, "It takes about %d ms ", sendTime );
 		usart_write_line(USER_RS232, ptemp);
 		usart_write_line(USER_RS232, "to send out the entire result string via RS-232 port.\r\n\r\n");
-
-		if ( allCycle < sendTime ) {
-			usart_write_line(USER_RS232, "\r\nError: Measurement cycle is shorter than transmission speed of RS-232 port.\r\n");
-			usart_write_line(USER_RS232, "Please decrease measurement speed (meas command), shorten the output string\r\n");
-			usart_write_line(USER_RS232, "(output command) or increase RS-232 baud rate (comport command).\r\n");
-		}	
 	}
-
+	
+	if ( allCycle < sendTime ) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 
 }
 

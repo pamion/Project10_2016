@@ -11,8 +11,10 @@
 #define RS232TEXTOUT_H_
 
 extern nvram_data_t1 hiddenConfig;
+extern nvram_data_t1 hiddenConfigNew;
 extern nvram_data_t1 hiddenConfig2Save;
 extern nvram_data_t2 publicConfig;
+extern nvram_data_t2 publicConfigNew;
 extern nvram_data_t2 publicConfig2Save;
 
 /*
@@ -103,6 +105,6 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
  * /brief Vypsání odhadu èasu mìøení
  *
  */
-void measTimeInfo( short onError );
+bool measTimeInfo( short onError );
 
 #endif /* RS232TEXTOUT_H_ */
