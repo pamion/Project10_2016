@@ -15,6 +15,15 @@
 
 uint16_t mask;
 
+void usart_write_line_8chars(volatile avr32_usart_t *usart, const char *string) {
+	short i = 0;
+	
+	while ( (*string != '\0') && (i < 8) ) {
+		usart_putchar(usart, *string++);
+		i++;
+	}
+}
+
 void resetPublicConfig(short restart) {
 	nvram_data_t2 publicConfigDefault = {
 		.comPortBaudrate	=  COM_PORT_BAUD_DEFAULT,
@@ -180,7 +189,7 @@ short int measTask(void) {
 	int j, timeout;
 	char ptemp[20];
 	
-	usart_write_line(USER_RS232, publicConfig.outputPrefix);				//Start of line
+	usart_write_line_8chars(USER_RS232, publicConfig.outputPrefix);				//Start of line
 			
 	for (j=0; j<16; j++) {
 		ADToBrightness(&Brightness, AD_Data_Values2Send[j]);
@@ -208,10 +217,10 @@ short int measTask(void) {
 				
 		usart_write_line(USER_RS232, ptemp);								//Print one value
 		if (j<15)
-			usart_write_line(USER_RS232, publicConfig.outputSeparator);	//Print separator
+			usart_write_line_8chars(USER_RS232, publicConfig.outputSeparator);	//Print separator
 		else
-			usart_write_line(USER_RS232, publicConfig.outputSuffix);		//Print suffix
+			usart_write_line_8chars(USER_RS232, publicConfig.outputSuffix);		//Print suffix
 	}
-	usart_write_line(USER_RS232, publicConfig.outputLineEnding);			//Print End of line
+	usart_write_line_8chars(USER_RS232, publicConfig.outputLineEnding);			//Print End of line
 	return 0;
 }

@@ -522,7 +522,7 @@ void exportConfiguration(void) {
 void hexToStringRepresentation(char *input ) {
 	int i = 0;
 	
-	while ( input[i] != '\0' ) {
+	while ( (input[i] != '\0') && (i<8) ) {
 		
 		switch ( input[i] ) {
 			case 0x01 :

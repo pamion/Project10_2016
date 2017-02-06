@@ -17,6 +17,14 @@ extern volatile uint16_t AD_Data_Values2Send[16];
 extern double Brightness;
 
 /*
+ * \brief Varianta funkce usart_write_line limitovaná na 8 znakù
+ * 
+ * \param usart   Base address of the USART instance.
+ * \param string  String to be written.
+ */
+void usart_write_line_8chars(volatile avr32_usart_t *usart, const char *string);
+
+/*
  * \brief Spoète poèet povolených kanálù
  * 
  * \param uint16 _t maska kanálù
