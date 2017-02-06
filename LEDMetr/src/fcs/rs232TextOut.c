@@ -77,7 +77,7 @@ void showInfoText(void) {
 	usart_write_line(USER_RS232, ptemp);
 	
 	usart_write_line(USER_RS232, "\r\nRS-232 port settings: ");
-	sprintf(ptemp, "%d", publicConfig2Save.comPortBaudrate);
+	sprintf(ptemp, "%2ld", publicConfig2Save.comPortBaudrate);
 	usart_write_line(USER_RS232, ptemp);
 	usart_write_line(USER_RS232, " baud, RTS/CTS handshaking ");
 	DISP_ON_OFF(publicConfig2Save.comPortHandshake);
@@ -441,7 +441,7 @@ void exportConfiguration(void) {
 	
 	/* COMPORT */
 	usart_write_line(USER_RS232, "\r\ncomport -s -b ");
-	sprintf(ptemp, "%d", publicConfig2Save.comPortBaudrate);
+	sprintf(ptemp, "%2ld", publicConfig2Save.comPortBaudrate);
 	usart_write_line(USER_RS232, ptemp); //number
 	usart_write_line(USER_RS232, " -h ");
 	if (publicConfig2Save.comPortHandshake == 1) {
@@ -482,7 +482,7 @@ void exportConfiguration(void) {
 	/* OUTPUT PREFIX */
 	usart_write_line(USER_RS232, "\r\noutput -pa ");
 	i=0;
-	while ( (publicConfig2Save.outputPrefix[i] != NULL) && (i < 8) ) {
+	while ( (publicConfig2Save.outputPrefix[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputPrefix[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
@@ -491,7 +491,7 @@ void exportConfiguration(void) {
 	/* OUTPUT SEPARATOR */
 	usart_write_line(USER_RS232, "\r\noutput -sa ");
 	i=0;
-	while ( (publicConfig2Save.outputSeparator[i] != NULL) && (i < 8) ) {
+	while ( (publicConfig2Save.outputSeparator[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputSeparator[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
@@ -500,7 +500,7 @@ void exportConfiguration(void) {
 	/* OUTPUT SUFFIX */
 	usart_write_line(USER_RS232, "\r\noutput -ua ");
 	i=0;
-	while ( (publicConfig2Save.outputSuffix[i] != NULL) && (i < 8) ) {
+	while ( (publicConfig2Save.outputSuffix[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputSuffix[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
@@ -509,7 +509,7 @@ void exportConfiguration(void) {
 	/* OUTPUT LINE ENDING */
 	usart_write_line(USER_RS232, "\r\noutput -la ");
 	i=0;
-	while ( (publicConfig2Save.outputLineEnding[i] != NULL) && (i < 8) ) {
+	while ( (publicConfig2Save.outputLineEnding[i] != '\0') && (i < 8) ) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputLineEnding[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;

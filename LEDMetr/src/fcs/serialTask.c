@@ -16,7 +16,7 @@
 #include "buffer.h"
 #include "serialTask.h"
 
-static char subBuff[SUBBUFF_LEN][20];	//pole ukazatelù rozdìlených podle mezer
+char subBuff[SUBBUFF_LEN][20];	//pole ukazatelù rozdìlených podle mezer
 static char toASCII[3];
 static short int i, j;					//pomocná promìnná pro indexaci
 static short int paramsCount;
@@ -31,7 +31,7 @@ void serialTask(void)
 	
 	int buff_stat = BUFFER_INIT;
 
-	if ( bufferIsLineReady(&buffIn) ) {
+	if ( bufferIsLineReady((struct T_buffer *) &buffIn) ) {
 		i = 0;
 		recognized = TRUE;
 		badArguments = FALSE;
@@ -39,11 +39,11 @@ void serialTask(void)
 		//Vyètení øádku z bufferu
 		buff_stat = BUFFER_SUCCESS;
 		while (buff_stat == BUFFER_SUCCESS) {
-			buff_stat = bufferReadWord(&buffIn, &subBuff[i++]);
+			buff_stat = bufferReadWord((struct T_buffer *) &buffIn,  (char *)&subBuff[i++]);
 		}
 		paramsCount = i;
 		for (i = paramsCount; i < SUBBUFF_LEN; i++) {
-			subBuff[i++][0] = NULL;
+			subBuff[i++][0] = '\0';
 		}
 		
 		//Vykonání základních pøíkazù
@@ -113,7 +113,7 @@ void serialTask(void)
 							if (validateInput(subBuff[i+1], VAL_INTEGER)) {
 								publicConfigNew.comPortBaudrate = atoi(subBuff[i + 1]);
 								if ( (publicConfigNew.comPortBaudrate >= 1200) & (publicConfigNew.comPortBaudrate <= 115200) ) {
-									sprintf(ptemp, "->New baud rate will be %d\r\n", publicConfigNew.comPortBaudrate);
+									sprintf(ptemp, "->New baud rate will be %ld\r\n", publicConfigNew.comPortBaudrate);
 									usart_write_line(USER_RS232, ptemp);
 									i++;
 								} else {
@@ -160,8 +160,8 @@ void serialTask(void)
 							showComportWarning();
 						}
 						while (saveComPort == UNKNOWN) {
-							if ( bufferIsLineReady(&buffIn) ) {
-								bufferReadWord(&buffIn, &ptemp);
+							if ( bufferIsLineReady((struct T_buffer *) &buffIn) ) {
+								bufferReadWord((struct T_buffer *) &buffIn, (char *)&ptemp);
 								if ( (ptemp[0] == 'Y') || (ptemp[0] == 'y') ) {
 									saveComPort = TRUE;
 									usart_write_line(USER_RS232, "Changes will be saved\r\n");
@@ -615,8 +615,8 @@ void serialTask(void)
 					showDefaultsWarning();
 					i = UNKNOWN;
 					while (i == UNKNOWN) {
-						if ( bufferIsLineReady(&buffIn) ) {
-							bufferReadWord(&buffIn, &ptemp);
+						if ( bufferIsLineReady((struct T_buffer *) &buffIn) ) {
+							bufferReadWord((struct T_buffer *) &buffIn, (char *)&ptemp);
 							if ( (ptemp[0] == 'Y') || (ptemp[0] == 'y') ) {
 								i = TRUE;
 								resetPublicConfig(TRUE);
@@ -704,7 +704,7 @@ void serialTask(void)
 					
 					if (publicConfig2Save.comPortBaudrate != publicConfig.comPortBaudrate) {
 						flashc_memcpy(&publicConfig.comPortBaudrate, &publicConfig2Save.comPortBaudrate, sizeof(publicConfig2Save.comPortBaudrate), TRUE);
-						sprintf(ptemp, "->Baud rate set to %2d\r\n", publicConfig2Save.comPortBaudrate);
+						sprintf(ptemp, "->Baud rate set to %2ld\r\n", publicConfig2Save.comPortBaudrate);
 						usart_write_line(USER_RS232, ptemp);
 					}
 					
@@ -764,7 +764,7 @@ void serialTask(void)
 		} // END of factory config. commands
 
 		// Pøíkaz nerozpoznán - bìhem konfigurace - nepøišel znak enter
-		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
+		if ( (recognized == FALSE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (&subBuff[0][0] != NULL) ) {
 			usart_write_line(USER_RS232, "Error: Bad command\r\n");
 			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG
@@ -777,7 +777,7 @@ void serialTask(void)
 		} else
 		
 		// Argument nerozpoznán - bìhem konfigurace - nepøišel znak enter
-		if ( (badArguments == TRUE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (subBuff[0][0] != NULL) ) {
+		if ( (badArguments == TRUE) && (statusMachine >= MACHINE_USER_CONFIGURATION) && (&subBuff[0][0] != NULL) ) {
 			usart_write_line(USER_RS232, "Error: Bad argument.\r\n");
 			usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
 #ifdef DEBUG

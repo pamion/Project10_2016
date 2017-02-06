@@ -37,7 +37,7 @@ void ADRead_irq(void)
 			cpu_delay_cy(2);						// measured by analyzer and this delay is in real appr 4us.
 			gpio_clr_gpio_pin(AD_SPI_CNV);
 			spi_write(AD_SPI, AD_Data);
-			spi_read(AD_SPI, &AD_Data);
+			spi_read(AD_SPI, (uint16_t *)&AD_Data);
 			ADReadsSummator=ADReadsSummator+AD_Data;
 			AveragedReadsCounter++;
 		
@@ -45,10 +45,10 @@ void ADRead_irq(void)
 			if( AveragedReadsCounter == NumberOfAveragedValues ) {
 				AD_Data_Values[MultiplexerChannel]=ADReadsSummator/NumberOfAveragedValues;
 			
-				if ( setChannelUp(&MultiplexerChannel) == TRUE ) {
+				if ( setChannelUp((uint8_t *)&MultiplexerChannel) == TRUE ) {
 					dataReady2send = TRUE;
 				}
-				SwitchMultiplexerToChannel(&MultiplexerChannel);
+				SwitchMultiplexerToChannel((uint8_t *)&MultiplexerChannel);
 				ADReadsSummator=0;
 				AveragedReadsCounter=0;
 				ChannelSwitchedFlag = FALSE;
@@ -79,7 +79,7 @@ void usart_int_handler(void)
 
 	usart_read_char(USER_RS232, &c);
 	
-	bufferWriteChar (&buffIn, c);
+	bufferWriteChar ((struct T_buffer*)&buffIn, (char *)c);
 	
 	/*if (statusRS232 == RS232_WAIT_2_CONFIRM) {
 		bufferRS232[0] = c;

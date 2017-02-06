@@ -32,11 +32,11 @@ int bufferWriteChar (struct T_buffer *buff, char *c) {
 	int prevPoz;
 	if ( bufferIsFull(buff) )	{
 		/* if overflow buffer we need to terminate buffer and try to load the data, even wrong */
-		if ( (c=='\r') || (c=='\n') ) {
+		if ( (c==(char*)'\r') || (c==(char*)'\n') ) {
 			buff->pozWrite = bufferPrevPosition(buff, buff->pozWrite);
 			buff->usedSpace--;
 			/* CRLF or LFCR handling only as one line ending */
-			if ( ( (buff->data[buff->pozWrite]=='\r') || (buff->data[buff->pozWrite]=='\n') ) && (buff->data[buff->pozWrite]!=c) ) {
+			if ( ( (buff->data[buff->pozWrite]=='\r') || (buff->data[buff->pozWrite]=='\n') ) && (&buff->data[buff->pozWrite]!=c) ) {
 				buff->linesCount--;
 			}
 		} else {
@@ -49,10 +49,10 @@ int bufferWriteChar (struct T_buffer *buff, char *c) {
 	
 	/* End of the line */
 	prevPoz = bufferPrevPosition(buff, buff->pozWrite);
-	if ( (c=='\r') || (c=='\n') ) {
+	if ( (c==(char*)'\r') || (c==(char*)'\n') ) {
 		/* CRLF or LFCR handling only as one line ending */
 		
-		if ( ( (buff->data[prevPoz]=='\r') || (buff->data[prevPoz]=='\n') ) && (buff->data[prevPoz]!=c) ) {
+		if ( ( (buff->data[prevPoz]=='\r') || (buff->data[prevPoz]=='\n') ) && (&buff->data[prevPoz]!=c) ) {
 			buff->usedSpace--;
 			buff->linesCount--;
 			buff->pozWrite = prevPoz;
@@ -98,12 +98,12 @@ int bufferReadWord (struct T_buffer *buff, char *c) {
 		
 		if ( (c_pom == ' ') && (status == 1) ) {
 			//pokud pøišla mezera a nejsme uvnitø složených závorek -> ukonèi
-			c[i] = NULL;
+			c[i] = '\0';
 			return BUFFER_SUCCESS;
 		} else if ( (c_pom == '\r') || (c_pom == '\n') )  {
 			//pokud pøišel konec øádku -> ukonèi
 			buff->linesCount--;
-			c[i] = NULL;
+			c[i] = '\0';
 			return BUFFER_LINE_END;
 		} else {
 			//pokud pøišly uvozovky

@@ -241,7 +241,7 @@ void mainInit(void) {
 
 	gpio_clr_gpio_pin(AD_SPI_CNV);
 
-	SwitchMultiplexerToChannel(&MultiplexerChannel);
+	SwitchMultiplexerToChannel((uint8_t *)&MultiplexerChannel);
 	
 	NumberOfAveragedValues = round(1000.0 * publicConfig.measNPLC / publicConfig.measPowerLineFreq);
 	

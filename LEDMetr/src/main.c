@@ -111,7 +111,7 @@ int main (void) {
 	short int sendData = 0;
 	float ErrVoltage  = -1;
 	
-	bufferInit(&buffIn, &buffInChar, RS232_BUFF_IN_SIZE);
+	bufferInit((struct T_buffer*)&buffIn, (char *)&buffInChar, RS232_BUFF_IN_SIZE);
 	
 	memcpy(&publicConfig2Save, &publicConfig, sizeof(publicConfig));
 

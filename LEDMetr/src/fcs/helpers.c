@@ -124,7 +124,7 @@ int validateInput(char *str, short type) {
 	int i;
 	if (type == VAL_INTEGER) {
 		i = 0;
-		while( str[i] != NULL ) {
+		while( str[i] != '\0' ) {
 			if ( (str[i] < '0') | (str[i] > '9') ) {
 				return FALSE;
 			}
@@ -136,7 +136,7 @@ int validateInput(char *str, short type) {
 			return VAL_BIN_LEN_ERR;
 		} else {
 			i = 0;
-			while( str[i] != NULL ) {
+			while( str[i] != '\0' ) {
 				if ( (str[i] != '0') && ( str[i] != '1' ) ) {
 					return FALSE;
 				}
@@ -151,7 +151,7 @@ int validateInput(char *str, short type) {
 			return VAL_HEX_LEN_ERR;
 		} else {
 			i = 0;
-			while( str[i] != NULL ) {
+			while( str[i] != '\0' ) {
 				if ( !( 
 					( (str[i] >= '0') & (str[i] <= '9') ) |
 					( (str[i] >= 'a') & (str[i] <= 'f') ) |
