@@ -486,6 +486,9 @@ void exportConfiguration(void) {
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
 	}
+	if (i==0) {
+		usart_write_line(USER_RS232, "00");
+	}
 	
 	/* OUTPUT SEPARATOR */
 	usart_write_line(USER_RS232, " -sa ");
@@ -494,7 +497,10 @@ void exportConfiguration(void) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputSeparator[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
-	}
+}
+if (i==0) {
+	usart_write_line(USER_RS232, "00");
+}
 	
 	/* OUTPUT SUFFIX */
 	usart_write_line(USER_RS232, " -ua ");
@@ -504,6 +510,9 @@ void exportConfiguration(void) {
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
 	}
+	if (i==0) {
+		usart_write_line(USER_RS232, "00");
+	}
 	
 	/* OUTPUT LINE ENDING */
 	usart_write_line(USER_RS232, " -la ");
@@ -512,6 +521,9 @@ void exportConfiguration(void) {
 		sprintf(ptemp, "%02X", publicConfig2Save.outputLineEnding[i]);
 		usart_write_line(USER_RS232, ptemp); //HEX represented string
 		i++;
+	}
+	if (i==0) {
+		usart_write_line(USER_RS232, "00");
 	}
 	
 	/* EXIT */
