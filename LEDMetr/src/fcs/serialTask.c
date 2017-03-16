@@ -61,11 +61,13 @@ void serialTask(void)
 				} else if CHECK_COMMAND("output", 1) {
 					showOutputHelp();
 				} else if CHECK_COMMAND("info", 1) {
-					showInfoText();
+					usart_write_line(USER_RS232, "\r\nDisplays current configuration and other luxmeter information.\r\n\r\n");
 				} else if CHECK_COMMAND("expconf", 1) {
 					showExpConfHelp();
 				} else if CHECK_COMMAND("defaults", 1) {
 					showDefaultsHelp();
+				} else if CHECK_COMMAND("exit", 1) {
+					usart_write_line(USER_RS232, "\r\nSaves new settings and restarts the luxmeter.\r\n\r\n");
 				} else {
 					showHelpHelp();
 				}
