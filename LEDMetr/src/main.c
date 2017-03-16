@@ -110,12 +110,22 @@ int main (void) {
 	short int i;
 	short int sendData = 0;
 	float ErrVoltage  = -1;
+	int cyclePeriod, cycle, lightOnTime;
 	
 	bufferInit((struct T_buffer*)&buffIn, (char *)&buffInChar, RS232_BUFF_IN_SIZE);
 	
-	memcpy(&publicConfig2Save, &publicConfig, sizeof(publicConfig));
+	memcpy(&publicConfigNew, &publicConfig, sizeof(publicConfig));
+	memcpy(&hiddenConfigNew, &hiddenConfig, sizeof(hiddenConfig));
 
 	mainInit();
+	
+	cyclePeriod = getMeasTime ( &cycle );
+	
+	if (cyclePeriod < 200) {
+		lightOnTime = (cyclePeriod / 2)-1;
+	} else {
+		lightOnTime = 100;
+	}
 	
 	while (1) {
 		//Process all data from terminal, if there is any
@@ -144,7 +154,7 @@ int main (void) {
 				dataReady2send = FALSE;
 			}
 			
-			if ( (tc_tick == 100) || (tc_tick == 101) ) {
+			if ( (tc_tick == lightOnTime) ) {
 				gpio_set_gpio_pin(LED_PIN);
 			}
 			

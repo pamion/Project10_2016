@@ -155,7 +155,7 @@ void showConfigText(void) {
 	usart_write_line(USER_RS232, "--------------------------------------------------\r\n");
 	usart_write_line(USER_RS232, "LXM-16 Industrial Luxmeter Configuration Interface\r\n");
 	usart_write_line(USER_RS232, "--------------------------------------------------\r\n");
-	usart_write_line(USER_RS232, "(c) 2011 - 2016, Pamion, s.r.o., Czech Republic.\r\n");
+	usart_write_line(USER_RS232, "(c) 2011 - 2017, Pamion, s.r.o., Czech Republic.\r\n");
 	usart_write_line(USER_RS232, "www.pamion.cz\r\n\r\n");
 	
 	usart_write_line(USER_RS232, "Enter \"help\" to get list of available commands.\r\n");
@@ -671,10 +671,10 @@ void outputStringExample( char *pre, char *se, char *su, char *le, short int rn,
 
 bool measTimeInfo( short onError ) {
 	char ptemp[60];
-	int cycle, allCycle, sendTime, charsPerMsg;
-	
-	cycle = ( 1000.0 * publicConfigNew.measNPLC / publicConfigNew.measPowerLineFreq + hiddenConfigNew.settlingTime );
-	allCycle = channelCount(publicConfigNew.channelsToogleMask) * cycle;
+	short charsPerMsg;
+	int cycle, allCycle, sendTime;
+	 
+	allCycle = getMeasTime(&cycle); 
 	
 	//count msg
 	if ( publicConfigNew.measScientific == 1 ) {

@@ -12,6 +12,8 @@
 
 extern nvram_data_t1 hiddenConfig;
 extern nvram_data_t2 publicConfig;
+extern nvram_data_t2 publicConfigNew;
+extern nvram_data_t1 hiddenConfigNew;
 extern volatile int print_sec;
 extern volatile uint16_t AD_Data_Values2Send[16];
 extern double Brightness;
@@ -23,6 +25,13 @@ extern double Brightness;
  * \param string  String to be written.
  */
 void usart_write_line_8chars(volatile avr32_usart_t *usart, const char *string);
+
+/*
+ * \brief Výpoèet èasu mìøení
+ * 
+ * \return (float) délka mìøení
+ */
+int getMeasTime ( int *cycle );
 
 /*
  * \brief Spoète poèet povolených kanálù

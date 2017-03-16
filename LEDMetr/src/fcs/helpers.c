@@ -24,6 +24,17 @@ void usart_write_line_8chars(volatile avr32_usart_t *usart, const char *string) 
 	}
 }
 
+int getMeasTime ( int *cycle ) {
+	short channels;
+	
+	channels = channelCount(publicConfigNew.channelsToogleMask);
+	(*cycle) = ( 1000.0 * publicConfigNew.measNPLC / publicConfigNew.measPowerLineFreq );
+	if (channels > 1) {
+		(*cycle) = (*cycle) + hiddenConfigNew.settlingTime;
+	} 
+	return channels * (*cycle);
+}
+
 void resetPublicConfig(short restart) {
 	nvram_data_t2 publicConfigDefault = {
 		.comPortBaudrate	=  COM_PORT_BAUD_DEFAULT,
